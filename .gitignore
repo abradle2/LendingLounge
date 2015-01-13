@@ -1,0 +1,5 @@
+*.csv
+*.pyc
+*.pyc~
+*.py~
+*.pickle
