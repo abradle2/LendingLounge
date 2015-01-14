@@ -1,0 +1,190 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'install', '-g', 'atlasboard' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.35
+4 verbose cache add [ 'atlasboard', null ]
+5 verbose cache add name=undefined spec="atlasboard" args=["atlasboard",null]
+6 verbose parsed url { protocol: null,
+6 verbose parsed url   slashes: null,
+6 verbose parsed url   auth: null,
+6 verbose parsed url   host: null,
+6 verbose parsed url   port: null,
+6 verbose parsed url   hostname: null,
+6 verbose parsed url   hash: null,
+6 verbose parsed url   search: null,
+6 verbose parsed url   query: null,
+6 verbose parsed url   pathname: 'atlasboard',
+6 verbose parsed url   path: 'atlasboard',
+6 verbose parsed url   href: 'atlasboard' }
+7 silly lockFile fe36fcdb-atlasboard atlasboard
+8 verbose lock atlasboard /Users/aaron/.npm/fe36fcdb-atlasboard.lock
+9 silly lockFile fe36fcdb-atlasboard atlasboard
+10 silly lockFile fe36fcdb-atlasboard atlasboard
+11 verbose addNamed [ 'atlasboard', '' ]
+12 verbose addNamed [ null, '*' ]
+13 silly lockFile 629a4694-atlasboard atlasboard@
+14 verbose lock atlasboard@ /Users/aaron/.npm/629a4694-atlasboard.lock
+15 silly addNameRange { name: 'atlasboard', range: '*', hasData: false }
+16 verbose request where is /atlasboard
+17 verbose request registry https://registry.npmjs.org/
+18 verbose request id e1bbc8354042b152
+19 verbose url raw /atlasboard
+20 verbose url resolving [ 'https://registry.npmjs.org/', './atlasboard' ]
+21 verbose url resolved https://registry.npmjs.org/atlasboard
+22 verbose request where is https://registry.npmjs.org/atlasboard
+23 info trying registry request attempt 1 at 21:42:11
+24 http GET https://registry.npmjs.org/atlasboard
+25 http 200 https://registry.npmjs.org/atlasboard
+26 silly registry.get cb [ 200,
+26 silly registry.get   { date: 'Mon, 12 Jan 2015 05:42:12 GMT',
+26 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+26 silly registry.get     etag: '"DXCALJS0VCN105O1T5WNWX8Q1"',
+26 silly registry.get     'content-type': 'application/json',
+26 silly registry.get     'cache-control': 'max-age=60',
+26 silly registry.get     'content-length': '35853',
+26 silly registry.get     'accept-ranges': 'bytes',
+26 silly registry.get     via: '1.1 varnish',
+26 silly registry.get     age: '0',
+26 silly registry.get     'x-served-by': 'cache-iad2122-IAD',
+26 silly registry.get     'x-cache': 'MISS',
+26 silly registry.get     'x-cache-hits': '0',
+26 silly registry.get     'x-timer': 'S1421041332.868989,VS0,VE60',
+26 silly registry.get     vary: 'Accept',
+26 silly registry.get     'keep-alive': 'timeout=10, max=50',
+26 silly registry.get     connection: 'Keep-Alive' } ]
+27 silly addNameRange number 2 { name: 'atlasboard', range: '*', hasData: true }
+28 silly addNameRange versions [ 'atlasboard',
+28 silly addNameRange   [ '0.0.1',
+28 silly addNameRange     '0.0.2',
+28 silly addNameRange     '0.0.3',
+28 silly addNameRange     '0.1.0',
+28 silly addNameRange     '0.1.1',
+28 silly addNameRange     '0.2.0',
+28 silly addNameRange     '0.3.0',
+28 silly addNameRange     '0.3.1',
+28 silly addNameRange     '0.4.0',
+28 silly addNameRange     '0.5.0',
+28 silly addNameRange     '0.5.1',
+28 silly addNameRange     '0.5.2',
+28 silly addNameRange     '0.5.3',
+28 silly addNameRange     '0.5.4',
+28 silly addNameRange     '0.5.5',
+28 silly addNameRange     '0.5.6',
+28 silly addNameRange     '0.6.0',
+28 silly addNameRange     '0.7.0',
+28 silly addNameRange     '0.8.0',
+28 silly addNameRange     '0.9.0' ] ]
+29 verbose addNamed [ 'atlasboard', '0.9.0' ]
+30 verbose addNamed [ '0.9.0', '0.9.0' ]
+31 silly lockFile 1220fb7a-atlasboard-0-9-0 atlasboard@0.9.0
+32 verbose lock atlasboard@0.9.0 /Users/aaron/.npm/1220fb7a-atlasboard-0-9-0.lock
+33 silly lockFile 434f3932--atlasboard-atlasboard-0-9-0-tgz https://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz
+34 verbose lock https://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz /Users/aaron/.npm/434f3932--atlasboard-atlasboard-0-9-0-tgz.lock
+35 verbose addRemoteTarball [ 'https://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz',
+35 verbose addRemoteTarball   '68def7d8382abba1c50f0f2a6b9fd59a9ff858cf' ]
+36 info retry fetch attempt 1 at 21:42:13
+37 verbose fetch to= /var/folders/yb/66mv_ww951g_bfgl0vq_8fsw0000gn/T/npm-8373-U6G9PAhU/registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz
+38 http GET https://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz
+39 http 200 https://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz
+40 silly lockFile 434f3932--atlasboard-atlasboard-0-9-0-tgz https://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz
+41 silly lockFile 434f3932--atlasboard-atlasboard-0-9-0-tgz https://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz
+42 silly lockFile 1220fb7a-atlasboard-0-9-0 atlasboard@0.9.0
+43 silly lockFile 1220fb7a-atlasboard-0-9-0 atlasboard@0.9.0
+44 silly lockFile 629a4694-atlasboard atlasboard@
+45 silly lockFile 629a4694-atlasboard atlasboard@
+46 silly resolved [ { author: { name: 'Atlassian' },
+46 silly resolved     license: 'Apache License, Version 2.0',
+46 silly resolved     contributors: [ [Object], [Object], [Object], [Object] ],
+46 silly resolved     name: 'atlasboard',
+46 silly resolved     description: 'AtlasBoard is dashboard/wallboard framework written all in JS',
+46 silly resolved     version: '0.9.0',
+46 silly resolved     homepage: 'http://atlasboard.bitbucket.org',
+46 silly resolved     repository:
+46 silly resolved      { type: 'git',
+46 silly resolved        url: 'git@bitbucket.org:atlassian/atlasboard.git' },
+46 silly resolved     engines: { node: '>=0.8' },
+46 silly resolved     bin: { atlasboard: './lib/cli/cli.js' },
+46 silly resolved     main: './lib/atlasboard.js',
+46 silly resolved     dependencies:
+46 silly resolved      { express: '3.0.0',
+46 silly resolved        path: '0.4.9',
+46 silly resolved        temp: '0.4.0',
+46 silly resolved        underscore: '1.6.0',
+46 silly resolved        'socket.io': '1.0.6',
+46 silly resolved        stylus: '0.47.1',
+46 silly resolved        nib: '1.0.3',
+46 silly resolved        'connect-assets': '2.3.3',
+46 silly resolved        ejs: '1.0.0',
+46 silly resolved        async: '0.9.0',
+46 silly resolved        optimist: '~0.3.5',
+46 silly resolved        hardhat: '~0.0.7',
+46 silly resolved        cheerio: '0.17.0',
+46 silly resolved        tracer: '0.5.1',
+46 silly resolved        request: '2.37.0',
+46 silly resolved        xtend: '2.0.3',
+46 silly resolved        pg: '1.1.0',
+46 silly resolved        moment: '2.7.0',
+46 silly resolved        'read-package-json': '~1.1.1',
+46 silly resolved        semver: '~2.0.11',
+46 silly resolved        nock: '~0.22.1',
+46 silly resolved        css: '2.0.0',
+46 silly resolved        mkdirp: '~0.5.0' },
+46 silly resolved     devDependencies:
+46 silly resolved      { mocha: '1.8.1',
+46 silly resolved        'expect.js': '0.1.2',
+46 silly resolved        rimraf: '2.1.4',
+46 silly resolved        sinon: '1.6.0',
+46 silly resolved        proxyquire: '0.4.1' },
+46 silly resolved     preferGlobal: true,
+46 silly resolved     keywords: [ 'server', 'dashboard' ],
+46 silly resolved     scripts: { test: 'mocha -b test --reporter list --ignore-leaks' },
+46 silly resolved     gitHead: '0fbd49c08415be631b7f06262f9b5c16f890e2f5',
+46 silly resolved     _id: 'atlasboard@0.9.0',
+46 silly resolved     _shasum: '68def7d8382abba1c50f0f2a6b9fd59a9ff858cf',
+46 silly resolved     _from: 'atlasboard@',
+46 silly resolved     _npmVersion: '1.4.14',
+46 silly resolved     _npmUser: { name: 'iloire', email: 'ivan@iloire.com' },
+46 silly resolved     maintainers: [ [Object], [Object], [Object] ],
+46 silly resolved     dist:
+46 silly resolved      { shasum: '68def7d8382abba1c50f0f2a6b9fd59a9ff858cf',
+46 silly resolved        tarball: 'http://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz' },
+46 silly resolved     directories: {},
+46 silly resolved     _resolved: 'https://registry.npmjs.org/atlasboard/-/atlasboard-0.9.0.tgz' } ]
+47 info install atlasboard@0.9.0 into /usr/local/lib
+48 info installOne atlasboard@0.9.0
+49 verbose lib/node_modules/atlasboard unbuild
+50 verbose tar unpack /Users/aaron/.npm/atlasboard/0.9.0/package.tgz
+51 silly lockFile 732269e0-ocal-lib-node-modules-atlasboard tar:///usr/local/lib/node_modules/atlasboard
+52 verbose lock tar:///usr/local/lib/node_modules/atlasboard /Users/aaron/.npm/732269e0-ocal-lib-node-modules-atlasboard.lock
+53 silly lockFile 9d6b4767-npm-atlasboard-0-9-0-package-tgz tar:///Users/aaron/.npm/atlasboard/0.9.0/package.tgz
+54 verbose lock tar:///Users/aaron/.npm/atlasboard/0.9.0/package.tgz /Users/aaron/.npm/9d6b4767-npm-atlasboard-0-9-0-package-tgz.lock
+55 silly gunzTarPerm modes [ '755', '644' ]
+56 error Error: EACCES, mkdir '/usr/local/lib/node_modules/atlasboard'
+56 error  { [Error: EACCES, mkdir '/usr/local/lib/node_modules/atlasboard']
+56 error   errno: 3,
+56 error   code: 'EACCES',
+56 error   path: '/usr/local/lib/node_modules/atlasboard',
+56 error   fstream_type: 'Directory',
+56 error   fstream_path: '/usr/local/lib/node_modules/atlasboard',
+56 error   fstream_class: 'DirWriter',
+56 error   fstream_stack:
+56 error    [ '/usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23',
+56 error      '/usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53',
+56 error      'Object.oncomplete (fs.js:108:15)' ] }
+57 error Please try running this command again as root/Administrator.
+58 error System Darwin 13.4.0
+59 error command "node" "/usr/local/bin/npm" "install" "-g" "atlasboard"
+60 error cwd /Users/aaron/Downloads/startbootstrap-sb-admin-1.0.1
+61 error node -v v0.10.35
+62 error npm -v 1.4.28
+63 error path /usr/local/lib/node_modules/atlasboard
+64 error fstream_path /usr/local/lib/node_modules/atlasboard
+65 error fstream_type Directory
+66 error fstream_class DirWriter
+67 error code EACCES
+68 error errno 3
+69 error stack Error: EACCES, mkdir '/usr/local/lib/node_modules/atlasboard'
+70 error fstream_stack /usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23
+70 error fstream_stack /usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53
+70 error fstream_stack Object.oncomplete (fs.js:108:15)
+71 verbose exit [ 3, true ]
