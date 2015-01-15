@@ -24,12 +24,16 @@ class TrainROI():
 		self.calculate_roi()
 		self.convert_to_float()
 		self.split_by_grade()
+
+		self.create_targets_features()
+		self.split_train_test(train_size=0.8)
 		self.balance()
-		self.targets = self.A_loans['roi'].values
-		
-		self.features = self.A_loans.drop(['loan_status', 'total_pymnt', 'roi'], 1).values
-		
-		self.split_train_test(test_size=0.2)
+
+		self.X_train = self.X_train.drop(['loan_status', 'total_pymnt', 'roi'], 1).values
+		self.y_train = self.y_train.values
+		self.X_test = self.X_test.drop(['loan_status', 'total_pymnt', 'roi'], 1).values
+		self.y_test = self.y_test.values
+
 
 	def load_data(self):
 		fileName = 'data.pickle'
@@ -43,16 +47,18 @@ class TrainROI():
 	def convert_to_float(self):
 		self.loanData = self.loanData.astype(float)
 
-	def split_by_grade(self):
-		self.A_loans = self.loanData[self.loanData['A'] == 1]
-		self.A_loans = self.A_loans.drop(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 1)
+	def split_by_grade(self, grade='A'):
+		self.loans = self.loanData[self.loanData[grade] == 1]
+		self.loans = self.loans.drop(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 1)
 
 
-	def split_train_test(self, test_size=0.2):
-		self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-													self.features, 
-													self.targets, 
-													test_size=test_size)
+	def split_train_test(self, train_size=0.8):
+		mask = np.random.rand(len(self.targets)) < train_size
+		self.X_train = self.features[mask]
+		self.y_train = self.targets[mask]
+		self.X_test = self.features[~mask]
+		self.y_test = self.targets[~mask]
+
 		print "Instances in training: ", len(self.X_train)
 		print "Instances in testing: ", len(self.X_test)
 
@@ -63,21 +69,26 @@ class TrainROI():
 									self.scalerX.transform(self.X_test)
 
 	def balance(self):
-		"""Balances the default and non-default data"""
-		print "Total loans before balancing: ", len(self.A_loans)
-		print "Defaults before balancing: ", np.sum(self.A_loans['loan_status'] == 0)
-		loans = self.A_loans
+		"""Balances the training default and non-default instances"""
+		print "Total loans before balancing: ", len(self.X_train)
+		print "Defaults before balancing: ", np.sum(self.X_train['loan_status'] == 0)
 		defaults_added = 0
-		for i in range(1, len(loans)):
-			loan = loans[i-1:i]
+		for i in range(1, len(self.X_train)):
+			loan = self.X_train[i-1:i]
+			loan_roi = self.y_train[i-1:i]
 			if int(loan['loan_status']) == 0:
 				for n in range(13): 	#replicate the loan multiple times
 					defaults_added += 1
 					if defaults_added%100 == 0:
 						print defaults_added
-					self.A_loans = self.A_loans.append(loan)
-		print "Total loans after balancing: ", len(self.A_loans)
-		print "Defaults after balancing: ", np.sum(self.A_loans['loan_status'] == 0)
+					self.X_train = self.X_train.append(loan)
+					self.y_train = self.y_train.append(loan_roi)
+		print "Total loans after balancing: ", len(self.y_train)
+		print "Defaults after balancing: ", np.sum(self.X_train['loan_status'] == 0)
+
+	def create_targets_features(self):
+		self.targets = self.loans['roi']
+		self.features = self.loans
 
 	def define_SVR(self, C=1.0, kernel='rbf', degree=3, gamma=0.0, coef0=0.0, shrinking=True, 
 				  probability=False, tol=0.01, cache_size=200, class_weight='auto', verbose=True, 
