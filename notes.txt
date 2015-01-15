@@ -1,3 +1,4 @@
 - "However, the main economic factor that impacts peer to peer loan repayment rates is the national unemployment rate"
 
 - 2012: Lending club lowered average FICO score from 716 to 700 and increased average interest rate from 10.8% to 13.0%
+

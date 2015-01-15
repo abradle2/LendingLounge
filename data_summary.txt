@@ -1,0 +1,628 @@
+id :  99266  unique vals
+
+
+
+member_id :  99266  unique vals
+
+
+
+loan_amnt :  1204  unique vals
+
+
+
+funded_amnt :  1222  unique vals
+
+
+
+funded_amnt_inv :  8735  unique vals
+
+
+
+term :  2  unique vals
+ 36 months    79540
+ 60 months    19726
+dtype: int64
+
+
+
+int_rate :  492  unique vals
+
+
+
+installment :  28821  unique vals
+
+
+
+grade :  7  unique vals
+B    30169
+C    23850
+A    18656
+D    15335
+E     7207
+F     3161
+G      888
+dtype: int64
+
+
+
+sub_grade :  35  unique vals
+B3    7358
+B4    6750
+B2    5719
+C1    5712
+B5    5638
+C2    5365
+A4    5020
+A5    4998
+B1    4704
+C3    4530
+C4    4278
+C5    3965
+D1    3609
+D2    3522
+A3    3350
+D3    3014
+A2    2835
+D4    2785
+A1    2453
+D5    2405
+E2    1741
+E1    1670
+E3    1409
+E4    1291
+E5    1096
+F1     888
+F2     750
+F3     615
+F4     508
+F5     400
+G1     291
+G2     200
+G3     140
+G4     135
+G5     122
+dtype: int64
+
+
+
+emp_title :  64881  unique vals
+
+
+
+emp_length :  12  unique vals
+10+ years    26965
+2 years       9907
+< 1 year      9258
+3 years       8519
+5 years       7908
+1 year        7167
+4 years       7109
+6 years       6109
+7 years       5328
+8 years       4282
+9 years       3552
+n/a           3162
+dtype: int64
+
+
+
+home_ownership :  6  unique vals
+2    47883
+0    43263
+1     7947
+3      147
+4       25
+5        1
+dtype: int64
+
+
+
+annual_inc :  9764  unique vals
+
+
+
+is_inc_v :  3  unique vals
+Not Verified       38054
+Verified           37356
+Source Verified    23856
+dtype: int64
+
+
+
+issue_d :  88  unique vals
+Apr-2013    2826
+May-2013    2797
+Aug-2013    2744
+Jun-2013    2727
+Jul-2013    2697
+Mar-2013    2548
+Sep-2013    2537
+Sep-2012    2509
+Oct-2012    2506
+Aug-2012    2433
+Nov-2012    2411
+Oct-2013    2366
+Jan-2013    2355
+Feb-2013    2330
+Nov-2013    2234
+...
+Nov-2008    209
+Dec-2007    172
+Sep-2014    149
+Jul-2008    141
+Jun-2008    124
+Oct-2008    122
+May-2008    115
+Nov-2007    112
+Oct-2007    105
+Aug-2008    100
+Aug-2007     74
+Jul-2007     63
+Sep-2008     57
+Sep-2007     53
+Jun-2007     24
+Length: 88, dtype: int64
+
+
+
+loan_status :  2  unique vals
+1    80738
+0    18528
+dtype: int64
+
+
+
+pymnt_plan :  2  unique vals
+n    99259
+y        7
+dtype: int64
+
+
+
+url :  99266  unique vals
+
+
+
+desc :  52851  unique vals
+
+
+
+purpose :  14  unique vals
+debt_consolidation    54378
+credit_card           17042
+other                  7264
+home_improvement       6317
+major_purchase         3377
+small_business         2900
+car                    2093
+wedding                1396
+medical                1346
+moving                 1005
+house                   867
+vacation                719
+educational             414
+renewable_energy        148
+dtype: int64
+
+
+
+title :  33021  unique vals
+
+
+
+zip_code :  858  unique vals
+
+
+
+addr_state :  50  unique vals
+CA    17660
+NY     8953
+TX     7230
+FL     6942
+NJ     4028
+IL     3623
+PA     3387
+VA     3255
+GA     3201
+OH     2914
+MA     2712
+NC     2550
+AZ     2392
+MD     2384
+WA     2282
+MI     2181
+CO     2073
+MN     1622
+CT     1605
+MO     1584
+NV     1398
+OR     1287
+WI     1195
+AL     1168
+LA     1138
+SC     1092
+KY      891
+UT      846
+OK      790
+KS      764
+IN      638
+AR      634
+HI      585
+TN      573
+NM      505
+NH      459
+RI      443
+WV      433
+DC      393
+MT      284
+DE      277
+AK      251
+WY      223
+SD      182
+VT      165
+MS       38
+IA       12
+NE       12
+ID        9
+ME        3
+dtype: int64
+
+
+
+dti :  3501  unique vals
+
+
+
+delinq_2yrs :  17  unique vals
+0     85633
+1      9766
+2      2496
+3       779
+4       269
+5       146
+6        67
+7        29
+8        20
+9         9
+11        7
+10        5
+12        5
+14        3
+18        1
+13        1
+29        1
+dtype: int64
+
+
+
+earliest_cr_line :  585  unique vals
+
+
+
+inq_last_6mths :  28  unique vals
+0     44848
+1     28205
+2     14840
+3      7496
+4      1976
+5       962
+6       467
+7       181
+8       117
+9        50
+10       24
+12       15
+11       15
+15        9
+13        6
+14        6
+18        4
+16        3
+17        2
+19        2
+24        2
+32        1
+20        1
+25        1
+27        1
+28        1
+31        1
+33        1
+dtype: int64
+
+
+
+mths_since_last_delinq :  109  unique vals
+
+
+
+mths_since_last_record :  122  unique vals
+
+
+
+open_acc :  51  unique vals
+9     9540
+8     9433
+7     8885
+10    8638
+11    7936
+6     7772
+12    6925
+5     5858
+13    5688
+14    4773
+4     3904
+15    3770
+16    3051
+17    2388
+3     2147
+18    1905
+19    1416
+20    1057
+2      860
+21     857
+22     644
+23     476
+24     369
+25     250
+26     156
+27     113
+28      80
+1       57
+29      53
+30      47
+31      39
+32      28
+33      22
+34      21
+35      16
+37      14
+38      11
+36       9
+39       6
+41       5
+40       4
+50       2
+49       2
+45       2
+0        2
+42       1
+43       1
+44       1
+46       1
+47       1
+48       1
+Length: 51, dtype: int64
+
+
+
+pub_rec :  11  unique vals
+0     90951
+1      7645
+2       472
+3       105
+4        36
+5        13
+6         9
+7         3
+10        1
+9         1
+8         1
+dtype: int64
+
+
+
+revol_bal :  34431  unique vals
+
+
+
+revol_util :  1145  unique vals
+
+
+
+total_acc :  87  unique vals
+21    3586
+20    3569
+19    3557
+17    3526
+22    3498
+23    3478
+18    3459
+16    3373
+24    3346
+15    3291
+25    3228
+14    3148
+13    3045
+26    3017
+27    2852
+...
+70    3
+79    3
+74    3
+76    3
+80    2
+75    2
+87    2
+71    2
+90    1
+88    1
+91    1
+83    1
+81    1
+77    1
+99    1
+Length: 87, dtype: int64
+
+
+
+initial_list_status :  2  unique vals
+f    85671
+w    13595
+dtype: int64
+
+
+
+out_prncp :  101  unique vals
+
+
+
+out_prncp_inv :  101  unique vals
+
+
+
+total_pymnt :  97113  unique vals
+
+
+
+total_pymnt_inv :  95452  unique vals
+
+
+
+total_rec_prncp :  20007  unique vals
+
+
+
+total_rec_int :  83923  unique vals
+
+
+
+total_rec_late_fee :  2716  unique vals
+
+
+
+recoveries :  8815  unique vals
+
+
+
+collection_recovery_fee :  5562  unique vals
+
+
+
+last_pymnt_d :  84  unique vals
+Oct-2014    5947
+Jun-2014    5622
+Jul-2014    5490
+Aug-2014    5054
+Sep-2014    4871
+May-2014    4720
+Mar-2014    4571
+Apr-2014    4325
+Jan-2014    3655
+Feb-2014    3632
+Dec-2013    3050
+Oct-2013    2832
+Nov-2014    2735
+Nov-2013    2662
+Aug-2013    2515
+...
+Sep-2009    55
+Oct-2008    55
+Sep-2008    40
+Jan-2009    40
+Jul-2008    37
+Dec-2008    31
+Nov-2008    31
+Aug-2008    31
+May-2008    30
+Apr-2008    23
+Jun-2008    20
+Mar-2008    18
+Jan-2008    11
+Feb-2008     8
+Dec-2007     2
+Length: 84, dtype: int64
+
+
+
+last_pymnt_amnt :  85527  unique vals
+
+
+
+next_pymnt_d :  86  unique vals
+Mar-2011    107
+Apr-2011    101
+Dec-2014     91
+Feb-2011     91
+Jan-2011     79
+May-2011     77
+Dec-2010     71
+Jun-2011     66
+Sep-2011     63
+Aug-2011     57
+Nov-2010     55
+Aug-2010     54
+Sep-2010     53
+Dec-2009     53
+Oct-2009     53
+...
+Jan-2008    4
+Nov-2014    4
+Jun-2008    4
+Apr-2008    4
+Sep-2014    3
+Jun-2014    3
+Mar-2008    3
+Apr-2014    3
+Jul-2008    3
+Aug-2014    2
+Oct-2014    2
+Feb-2008    2
+Jul-2014    2
+Dec-2007    1
+May-2008    1
+Length: 86, dtype: int64
+
+
+
+last_credit_pull_d :  89  unique vals
+Nov-2014    27485
+Oct-2014     7035
+Sep-2014     5692
+Jul-2014     4915
+Aug-2014     4901
+Jun-2014     3739
+May-2014     3709
+Apr-2014     3369
+Mar-2014     3248
+Feb-2014     2822
+Jan-2014     2598
+Nov-2013     1996
+Dec-2013     1959
+Feb-2013     1876
+Oct-2013     1789
+...
+Oct-2008    13
+Sep-2008    10
+May-2007    10
+Mar-2008     8
+Dec-2008     7
+Sep-2007     5
+Jan-2008     5
+Feb-2008     3
+Oct-2007     3
+Dec-2007     3
+Nov-2007     3
+Jul-2008     2
+Jul-2007     1
+Jun-2008     1
+May-2008     1
+Length: 89, dtype: int64
+
+
+
+collections_12_mths_ex_med :  3  unique vals
+0    98885
+1      224
+2       12
+dtype: int64
+
+
+
+mths_since_last_major_derog :  119  unique vals
+
+
+
+policy_code :  1  unique vals
+1    99266
+dtype: int64

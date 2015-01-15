@@ -66,6 +66,7 @@
                                 <th>Grade</th> 
                                 <th>Interest Rate</th> 
                                 <th>Amount</th> 
+                                <th>Default Prob.</th>
                             </tr> 
                             </thead> 
                             <tbody> 
@@ -74,14 +75,16 @@
                                 <td>J. Bob</td> 
                                 <td>A2</td> 
                                 <td>6.24%</td> 
-                                <td>$5000.00</td> 
+                                <td>$5000.00</td>
+                                <td>7.2%</td> 
                             </tr>
                             <tr> 
                                 <td>119341</td> 
                                 <td>S. Rob</td> 
                                 <td>D4</td> 
                                 <td>18.30%</td> 
-                                <td>$4500.00</td> 
+                                <td>$4500.00</td>
+                                <td>63.3%</td>
                             </tr>  
                             </tbody> 
                         </table> 
@@ -90,7 +93,51 @@
                 <!-- /.row -->
 
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-4" id="single-loan-info">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Loan Information</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="single-loan" id="single-loan-left">
+                                    <ul>
+                                        <li>Loan ID</li>
+                                        <li>Member ID</li>
+                                        <li>Loan Amount</li>
+                                        <li>Grade</li>
+                                        <li>Interest Rate</li>
+                                        <li>Annual Income</li>
+                                        <li>DTI</li>
+                                        <li>Occupation</li>
+                                        <li>State</li>
+                                        <li>Open Accounts</li>
+                                        <li>Revolving Balance</li>
+                                        <li>Default Probability</li>
+                                        <li>Estimated Default Time</li>
+                                    </ul>
+                                </div>
+                                <div class="single-loan" id="single-loan-right">
+                                    <ul>
+                                        <li>2384</li>
+                                        <li>234098</li>
+                                        <li>$4300.00</li>
+                                        <li>B3</li>
+                                        <li>14.43%</li>
+                                        <li>$43000.00</li>
+                                        <li>0.34</li>
+                                        <li>Accountant</li>
+                                        <li>CA</li>
+                                        <li>9</li>
+                                        <li>$23000.00</li>
+                                        <li>67%</li>
+                                        <li>18 months</li>
+                                    </ul>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12" id="graph-div">
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Area Chart</h3>

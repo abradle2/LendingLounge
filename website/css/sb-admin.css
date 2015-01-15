@@ -179,3 +179,28 @@ ul.alert-dropdown {
 .panel-yellow a:hover {
     color: #df8a13;
 }
+
+/* Custom CSS Added by Aaron */
+
+#single-loan-info {
+    width: 30%;
+}
+
+#graph-div {
+    width: 70%;
+}
+
+#single-loan-left {
+    float: left;
+    width: 50%;
+}
+
+#single-loan-right {
+    float: left;
+    width: 50%;
+}
+
+.single-loan li {
+    list-style-type:none
+}
+
