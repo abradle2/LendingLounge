@@ -148,6 +148,7 @@ class TrainROI():
 		n_estimators = [10,50,100,500]
 		for n in n_estimators:
 			self.define_rfr(n_estimators=n)
+			self.train_regr()
 			self.predict(filename_label="rfr_n_est_%i" %n)
 
 	def runSVRGridSearch(self):
@@ -182,7 +183,7 @@ trainer.scale_samples_to_range()
 trainer.standardize_samples
 trainer.define_rfr(n_estimators=100)
 trainer.runPCA(n_components=30)
-trainer.train_regr()
+#trainer.train_regr()
 #trainer.predict(filename_label="n_estimators_100")
 trainer.runRFRGridSearch()
 trainer.define_SVR()
