@@ -440,4 +440,41 @@ Using a Support Vector Machine Regressor ...
 {'kernel': 'rbf', 'C': 0.5, 'probability': False, 'degree': 3, 'epsilon': 0.1, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 1, 'verbose': True}
 [LibSVM]..
 Warning: using -h 0 may be faster
-*.....
+*.....*
+optimization finished, #iter = 7027
+obj = -206.118639, rho = 0.031986
+nSV = 4578, nBSV = 998
+Training Scores:
+Score: 0.346
+Testing Scores:
+Score: -0.026
+predicting
+Saving prdiction as svr_A_C_0.5_gamma_1.pickle
+
+
+ C:  0.5   gamma:  10.0
+Using a Support Vector Machine Regressor ...
+{'kernel': 'rbf', 'C': 0.5, 'probability': False, 'degree': 3, 'epsilon': 0.1, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 10.0, 'verbose': True}
+[LibSVM]....
+Warning: using -h 0 may be faster
+*.....*
+optimization finished, #iter = 9144
+obj = -130.762198, rho = 0.038188
+nSV = 9712, nBSV = 484
+Training Scores:
+Score: 0.669
+Testing Scores:
+Score: -0.118
+predicting
+Saving prdiction as svr_A_C_0.5_gamma_10.0.pickle
+
+
+ C:  0.5   gamma:  100.0
+Using a Support Vector Machine Regressor ...
+{'kernel': 'rbf', 'C': 0.5, 'probability': False, 'degree': 3, 'epsilon': 0.1, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 100.0, 'verbose': True}
+[LibSVM]....
+Warning: using -h 0 may be faster
+*.....*
+optimization finished, #iter = 9306
+obj = -128.092709, rho = 0.038887
+nSV = 10115, nBSV = 458
