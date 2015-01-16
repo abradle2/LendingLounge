@@ -129,10 +129,11 @@ class TrainROI():
 	def predict(self, filename_label):
 		print "predicting"
 		self.prediction = self.regr.predict(self.X_test)
-		print "Saving prdiction as svr_A_%s.pickle" %filename_label
-		self.save_pickle(fileName="svr_A_%s.pickle" %filename_label,
+		print "Saving prdiction as A_%s.pickle" %filename_label
+		self.save_pickle(fileName="A_%s_predict.pickle" %filename_label,
 										 data=self.prediction)
-
+		self.save_pickle(fileName="A_%s_test.pickle" %filename_label, 
+										 data=self.y_test)
 
 	def runPCA(self, n_components=None, copy=False, whiten=False):
 		print "Running PCA Dimensionality Reduction with n_components = ", n_components
@@ -147,7 +148,7 @@ class TrainROI():
 		n_estimators = [10,50,100,500]
 		for n in n_estimators:
 			self.define_rfr(n_estimators=n)
-			self.predict(filename_label="n_est_%i" %n)
+			self.predict(filename_label="rfr_n_est_%i" %n)
 
 	def runSVRGridSearch(self):
 		C_vals = [0.001, 0.01, 0.1, 0.5, 1, 10]
@@ -162,7 +163,7 @@ class TrainROI():
 				self.score_regr(self.X_train, self.y_train)
 				print "Testing Scores:"
 				self.score_regr(self.X_test, self.y_test)
-				self.predict(filename_label="C_%s_gamma_%s" %(C, gamma))
+				self.predict(filename_label="svr_C_%s_gamma_%s" %(C, gamma))
 
 	def plot_score(self):
 		plt.scatter(self.prediction, self.y_test)
@@ -182,7 +183,8 @@ trainer.standardize_samples
 trainer.define_rfr(n_estimators=100)
 trainer.runPCA(n_components=30)
 trainer.train_regr()
-trainer.predict(filename_label="n_estimators_100")
+#trainer.predict(filename_label="n_estimators_100")
+trainer.runRFRGridSearch()
 trainer.define_SVR()
 trainer.runSVRGridSearch()
 
