@@ -82,6 +82,7 @@ def get_state_unemployment_rate(argyear, argmonth, state):
             year = item['year']
             period = item['period'][1:]
             u_rate = item['value']
+            '''
             exists = mysql.execute("SELECT * FROM unemployment_rates \
                                     WHERE state=\'%s\' \
                                     AND year=\'%s\' \
@@ -97,6 +98,7 @@ def get_state_unemployment_rate(argyear, argmonth, state):
                                     \'%s\')" %(state, year, period, u_rate)
                 print statement
                 mysql.execute(statement)
+            '''
             
             x.add_row([seriesId,year,period,u_rate])
         print x.get_string()
