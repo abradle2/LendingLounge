@@ -8,24 +8,10 @@ import pickle
 files = glob.glob('./data/*.csv')
 list1 = []
 for fileName in files:
-    print "loading file ", fileName
     tempFrame = pd.read_csv(fileName, header=1)
     list1.append(tempFrame)
-print "concatenating files"
 loanData = pd.concat(list1, ignore_index=True)
 
-
-##remove all non-finished loans
-print "loan_status"
-loanData = loanData[[x in ['Charged Off',
-						   'Default', 
-						   'Fully Paid', 
-						   'Does not meet the credit policy.  Status:Charged Off',
-						   'Does not meet the credit policy.  Status:Default',
-						   'Does not meet the credit policy.  Status:Fully Paid'
-						   ] for x in loanData['loan_status']]]
-loanData.index = range(len(loanData))
-print "loans: ", len(loanData)
 
 
 ##int_rate
@@ -95,10 +81,9 @@ loanData['is_inc_v'] = [0 if x == "Not Verified" else x for x in loanData['is_in
 print "issue_month"
 loanData['issue_month'] = 0
 loanData['issue_year'] = 0
-print "entering for loop issue_m and issue_y"
 for i in range(len(loanData['issue_d'])):
-    print i
-    m = pd.to_datetime(loanData['issue_d'][i]).month
+    m = pd.to_datetime(loanData['issue_d']
+[i]).month
     y = pd.to_datetime(loanData['issue_d'][i]).year
     loanData['issue_month'].iloc[i] = m
     loanData['issue_year'].iloc[i] = y
@@ -164,6 +149,18 @@ loanData['mths_since_last_major_derog'] = [-1 if pd.isnull(x) else x for x in lo
 ##collections_12_mths_ex_med
 loanData['collections_12_mths_ex_med'] = [-1 if pd.isnull(x) else x for x in loanData['collections_12_mths_ex_med']]
 
+
+##remove all non-finished loans
+print "loan_status"
+loanData = loanData[[x in ['Charged Off',
+						   'Default', 
+						   'Fully Paid', 
+						   'Does not meet the credit policy.  Status:Charged Off',
+						   'Does not meet the credit policy.  Status:Default',
+						   'Does not meet the credit policy.  Status:Fully Paid'
+						   ] for x in loanData['loan_status']]]
+loanData.index = range(len(loanData))
+print "loans: ", len(loanData)
 
 ##Remove features which aren't available for new loan listings
 print "removing features"
