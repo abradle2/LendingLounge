@@ -7,6 +7,7 @@ from random import randint
 
 from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 from sklearn import preprocessing
@@ -28,7 +29,7 @@ class TrainROI():
 
 		self.create_targets_features()
 		self.split_train_test(train_size=0.8)
-		self.balance()
+		#self.balance()
 
 		self.X_train = self.X_train.drop(['loan_status', 'total_pymnt', 'roi'], 1).values
 		self.y_train = self.y_train.values
@@ -108,13 +109,15 @@ class TrainROI():
 	def define_SVR(self, C=1.0, kernel='rbf', degree=3, gamma=0.0, coef0=0.0, shrinking=True, 
 				  probability=False, tol=0.01, cache_size=200, class_weight='auto', verbose=True, 
 				  max_iter=-1, random_state=None):
-
 		print "Using a Support Vector Machine Regressor ..."
 		self.regr = SVR(C=C, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0, shrinking=shrinking, 
 				  probability=probability, tol=tol, cache_size=cache_size, verbose=verbose, 
 				  max_iter=max_iter, random_state=random_state)
 
 		print self.regr.get_params()
+
+	def define_rfr(self, n_estimators):
+		self.regr = RandomForestRegressor(n_estimators=n_estimators)
 
 	def train_regr(self):
 		self.regr.fit(self.X_train, self.y_train)
@@ -123,8 +126,12 @@ class TrainROI():
 		score = self.regr.score(X, y)
 		print "Score: %0.3f" %score
 
-	def predict(self):
+	def predict(self, filename_label):
+		print "predicting"
 		self.prediction = self.regr.predict(self.X_test)
+		print "Saving prdiction as svr_A_%s.pickle" %filename_label
+		self.save_pickle(fileName="svr_A_%s.pickle" %filename_label,
+										 data=self.prediction)
 
 
 	def runPCA(self, n_components=None, copy=False, whiten=False):
@@ -135,6 +142,12 @@ class TrainROI():
 		print "Transforming test data ..."
 		self.X_test = self.pca.transform(self.X_test)
 		#self.X_cv = self.pca.transform(self.X_cv)
+
+	def runRFRGridSearch(self):
+		n_estimators = [10,50,100,500]
+		for n in n_estimators:
+			self.define_rfr(n_estimators=n)
+			self.predict(filename_label="n_est_%i" %n)
 
 	def runSVRGridSearch(self):
 		C_vals = [0.001, 0.01, 0.1, 0.5, 1, 10]
@@ -149,6 +162,8 @@ class TrainROI():
 				self.score_regr(self.X_train, self.y_train)
 				print "Testing Scores:"
 				self.score_regr(self.X_test, self.y_test)
+				self.predict(filename_label="C_%s_gamma_%s" %(C, gamma))
+
 	def plot_score(self):
 		plt.scatter(self.prediction, self.y_test)
 		plt.plot([0,1.3], [0,1.3])
@@ -156,16 +171,24 @@ class TrainROI():
 		plt.ylabel('y_test')
 		plt.show()
 
+	def save_pickle(self, fileName, data):
+		f = open(fileName, 'wb')
+		pickle.dump(data, f)
+		f.close()
+
 trainer = TrainROI()
 trainer.scale_samples_to_range()
 trainer.standardize_samples
-trainer.define_SVR()
-#trainer.define_linear_regressor()
+trainer.define_rfr(n_estimators=100)
 trainer.runPCA(n_components=30)
-#trainer.train_regr()
-#trainer.predict()
+trainer.train_regr()
+trainer.predict(filename_label="n_estimators_100")
+trainer.define_SVR()
+trainer.runSVRGridSearch()
+
+
 #trainer.score_regr(trainer.X_test, trainer.y_test)
 #trainer.plot_score()
-trainer.runSVRGridSearch()
+#trainer.runSVRGridSearch()
 
 
