@@ -9,6 +9,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
+from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from scipy.stats import randint as sp_randint
 import matplotlib.pyplot as plt
@@ -42,7 +43,7 @@ class TrainROI():
 		self.loanData = pickle.load(f)
 
 	def calculate_roi(self):
-		self.loanData['roi'] = self.loanData['total_pymnt']/self.loanData['loan_amnt']
+		self.loanData['roi'] = (self.loanData['total_pymnt']-self.loanData['funded_amnt'])/self.loanData['funded_amnt']
 
 	def convert_to_float(self):
 		self.loanData = self.loanData.astype(float)
@@ -68,6 +69,17 @@ class TrainROI():
 		self.X_train, self.X_test = self.scalerX.transform(self.X_train), \
 									self.scalerX.transform(self.X_test)
 
+	def standardize_samples(self):
+		##0 mean, unit variance
+		self.X_train = preprocessing.scale(self.X_train)
+		self.X_test = preprocessing.scale(self.X_test)
+
+	def scale_samples_to_range(self):
+		##Samples lie in range between 0 and 1
+		minMaxScaler = preprocessing.MinMaxScaler()
+		self.X_train = minMaxScaler.fit_transform(self.X_train)
+		self.X_test = minMaxScaler.fit_transform(self.X_test)
+
 	def balance(self):
 		"""Balances the training default and non-default instances"""
 		print "Total loans before balancing: ", len(self.X_train)
@@ -77,7 +89,7 @@ class TrainROI():
 			loan = self.X_train[i-1:i]
 			loan_roi = self.y_train[i-1:i]
 			if int(loan['loan_status']) == 0:
-				for n in range(13): 	#replicate the loan multiple times
+				for n in range(10): 	#replicate the loan multiple times
 					defaults_added += 1
 					if defaults_added%100 == 0:
 						print defaults_added
@@ -89,6 +101,9 @@ class TrainROI():
 	def create_targets_features(self):
 		self.targets = self.loans['roi']
 		self.features = self.loans
+
+	def define_linear_regressor(self):
+		self.regr = LinearRegression()
 
 	def define_SVR(self, C=1.0, kernel='rbf', degree=3, gamma=0.0, coef0=0.0, shrinking=True, 
 				  probability=False, tol=0.01, cache_size=200, class_weight='auto', verbose=True, 
@@ -107,6 +122,10 @@ class TrainROI():
 	def score_regr(self, X, y):
 		score = self.regr.score(X, y)
 		print "Score: %0.3f" %score
+
+	def predict(self):
+		self.prediction = self.regr.predict(self.X_test)
+
 
 	def runPCA(self, n_components=None, copy=False, whiten=False):
 		print "Running PCA Dimensionality Reduction with n_components = ", n_components
@@ -130,13 +149,23 @@ class TrainROI():
 				self.score_regr(self.X_train, self.y_train)
 				print "Testing Scores:"
 				self.score_regr(self.X_test, self.y_test)
+	def plot_score(self):
+		plt.scatter(self.prediction, self.y_test)
+		plt.plot([0,1.3], [0,1.3])
+		plt.xlabel('prediction')
+		plt.ylabel('y_test')
+		plt.show()
 
 trainer = TrainROI()
-trainer.scale()
+trainer.scale_samples_to_range()
+trainer.standardize_samples
 trainer.define_SVR()
-trainer.runPCA(n_components=20)
+#trainer.define_linear_regressor()
+trainer.runPCA(n_components=30)
 #trainer.train_regr()
+#trainer.predict()
 #trainer.score_regr(trainer.X_test, trainer.y_test)
+#trainer.plot_score()
 trainer.runSVRGridSearch()
 
 

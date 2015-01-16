@@ -13,6 +13,18 @@ for fileName in files:
 loanData = pd.concat(list1, ignore_index=True)
 
 
+##remove all non-finished loans
+print "loan_status"
+loanData = loanData[[x in ['Charged Off',
+						   'Default', 
+						   'Fully Paid', 
+						   'Does not meet the credit policy.  Status:Charged Off',
+						   'Does not meet the credit policy.  Status:Default',
+						   'Does not meet the credit policy.  Status:Fully Paid'
+						   ] for x in loanData['loan_status']]]
+loanData.index = range(len(loanData))
+print "loans: ", len(loanData)
+
 
 ##int_rate
 print "int_rate"
@@ -84,8 +96,8 @@ loanData['issue_year'] = 0
 for i in range(len(loanData['issue_d'])):
     m = pd.to_datetime(loanData['issue_d'][i]).month
     y = pd.to_datetime(loanData['issue_d'][i]).year
-    loanData['issue_month'][i] = m
-    loanData['issue_year'][i] = y
+    loanData['issue_month'].iloc[i] = m
+    loanData['issue_year'].iloc[i] = y
 
 loanData = loanData.drop('issue_d', 1)
 
@@ -117,7 +129,7 @@ print "yrs_since_first_cr_line"
 loanData['yrs_since_first_cr_line'] = 0
 for i in range(len(loanData['earliest_cr_line'])):
     earliest_year = pd.to_datetime(loanData['earliest_cr_line'][i]).year
-    loanData['yrs_since_first_cr_line'][i] = date.today().year - earliest_year
+    loanData['yrs_since_first_cr_line'].iloc[i] = date.today().year - earliest_year
 loanData = loanData.drop('earliest_cr_line', 1)
 
 
@@ -148,18 +160,6 @@ loanData['mths_since_last_major_derog'] = [-1 if pd.isnull(x) else x for x in lo
 ##collections_12_mths_ex_med
 loanData['collections_12_mths_ex_med'] = [-1 if pd.isnull(x) else x for x in loanData['collections_12_mths_ex_med']]
 
-
-##remove all non-finished loans
-print "loan_status"
-loanData = loanData[[x in ['Charged Off',
-						   'Default', 
-						   'Fully Paid', 
-						   'Does not meet the credit policy.  Status:Charged Off',
-						   'Does not meet the credit policy.  Status:Default',
-						   'Does not meet the credit policy.  Status:Fully Paid'
-						   ] for x in loanData['loan_status']]]
-loanData.index = range(len(loanData))
-print "loans: ", len(loanData)
 
 ##Remove features which aren't available for new loan listings
 print "removing features"
