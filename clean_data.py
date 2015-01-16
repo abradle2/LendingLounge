@@ -81,11 +81,13 @@ loanData['is_inc_v'] = [0 if x == "Not Verified" else x for x in loanData['is_in
 print "issue_month"
 loanData['issue_month'] = 0
 loanData['issue_year'] = 0
+print "entering for loop issue_m and issue_y"
 for i in range(len(loanData['issue_d'])):
+    print i
     m = pd.to_datetime(loanData['issue_d'][i]).month
     y = pd.to_datetime(loanData['issue_d'][i]).year
-    loanData['issue_month'][i] = m
-    loanData['issue_year'][i] = y
+    loanData['issue_month'].iloc[i] = m
+    loanData['issue_year'].iloc[i] = y
 
 loanData = loanData.drop('issue_d', 1)
 
@@ -117,7 +119,7 @@ print "yrs_since_first_cr_line"
 loanData['yrs_since_first_cr_line'] = 0
 for i in range(len(loanData['earliest_cr_line'])):
     earliest_year = pd.to_datetime(loanData['earliest_cr_line'][i]).year
-    loanData['yrs_since_first_cr_line'][i] = date.today().year - earliest_year
+    loanData['yrs_since_first_cr_line'].iloc[i] = date.today().year - earliest_year
 loanData = loanData.drop('earliest_cr_line', 1)
 
 
