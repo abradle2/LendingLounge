@@ -93,7 +93,9 @@ loanData['is_inc_v'] = [0 if x == "Not Verified" else x for x in loanData['is_in
 print "issue_month"
 loanData['issue_month'] = 0
 loanData['issue_year'] = 0
+print "entering for loop issue_m and issue_y"
 for i in range(len(loanData['issue_d'])):
+    print i
     m = pd.to_datetime(loanData['issue_d'][i]).month
     y = pd.to_datetime(loanData['issue_d'][i]).year
     loanData['issue_month'].iloc[i] = m
