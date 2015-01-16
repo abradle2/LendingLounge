@@ -154,18 +154,19 @@ class TrainROI():
 	def runSVRGridSearch(self):
 		C_vals = [0.1, 0.5, 1, 10, 100]
 		gamma_vals = [1E-1, 1, 1E1, 1E2, 1E3]
-		degree = [3,4,5]
+		degrees = [3,4,5]
 
 		for C in C_vals:
 			for gamma in gamma_vals:
-				print "\n\n C: ", C, "  gamma: ", gamma
-				self.define_SVR(C=C, gamma=gamma, degree=degree, cache_size=2000)
-				self.train_regr()
-				print "Training Scores:"
-				self.score_regr(self.X_train, self.y_train)
-				print "Testing Scores:"
-				self.score_regr(self.X_test, self.y_test)
-				self.predict(filename_label="svr_C_%s_gamma_%s" %(C, gamma))
+				for degree in degrees:
+					print "\n\n C: ", C, "  gamma: ", gamma
+					self.define_SVR(C=C, gamma=gamma, degree=degree, cache_size=2000)
+					self.train_regr()
+					print "Training Scores:"
+					self.score_regr(self.X_train, self.y_train)
+					print "Testing Scores:"
+					self.score_regr(self.X_test, self.y_test)
+					self.predict(filename_label="svr_C_%s_gamma_%s" %(C, gamma))
 
 	def plot_score(self):
 		plt.scatter(self.prediction, self.y_test)
@@ -182,6 +183,7 @@ class TrainROI():
 trainer = TrainROI()
 trainer.scale_samples_to_range()
 trainer.standardize_samples
+trainer.define_SVR()
 #trainer.define_rfr(n_estimators=100)
 trainer.runPCA(n_components=50)
 #trainer.train_regr()
