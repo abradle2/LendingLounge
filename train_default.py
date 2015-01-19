@@ -10,10 +10,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor 
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
+from sklearn import preprocessing
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 
 from sklearn.tree import export_graphviz 
 from sklearn.decomposition import PCA
@@ -80,7 +82,6 @@ class Trainer():
 
 	def define_rfc(self, n_estimators=20):
 		self.clf = RandomForestClassifier(n_estimators=n_estimators)
-		self.clf.fit(self.X_train, self.y_train)
 		print self.clf.get_params()
 
 	def defineSVC(self, C=1.0, kernel='rbf', degree=3, gamma=0.0, coef0=0.0, shrinking=True, 
@@ -93,12 +94,15 @@ class Trainer():
 				  max_iter=max_iter, random_state=random_state)
 		print self.clf.get_params()
 
-	def score(self):
-		print classification_report(self.y_test, self.prediction)
-		print "predict 0: ", np.sum(self.prediction == 0)
-		print "predict 1: ", np.sum(self.prediction == 1)
-		print "actual 0: ", np.sum(self.y_test == 0)
-		print "actual 0: ", np.sum(self.y_test == 1)
+	def train(self):
+		self.clf.fit(self.X_train, self.y_train)
+
+	def score(self, y_actual, pred):
+		print classification_report(y_actual, pred)
+		print "predict 0: ", np.sum(pred == 0)
+		print "predict 1: ", np.sum(pred == 1)
+		print "actual 0: ", np.sum(y_actual == 0)
+		print "actual 0: ", np.sum(y_actual == 1)
 		#print "feature importances:"
 		#print self.clf.feature_importances_
 
@@ -122,17 +126,21 @@ class Trainer():
 			for gamma in gamma_vals:
 				print "\n\n C: ", C, "  gamma: ", gamma
 				self.defineSVC(C=C, gamma=gamma)
-				self.trainCLF()
+				self.train()
 				print "Training Scores:"
-				self.getScores(self.X_train, self.y_train)
+				self.score(self.X_train, self.y_train)
 				print "Testing Scores:"
-				self.getScores(self.X_cv, self.y_cv)
+				self.score(self.X_test, self.y_test)
 
 trainer = Trainer()
 trainer.standardize_samples()
 trainer.scale_samples_to_range()
+trainer.runSVCGridSearch()
+
+'''
 n_trees = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 for n in n_trees:
 	trainer.define_rfc(n_estimators=n)
 	trainer.predict()
 	trainer.score()
+'''

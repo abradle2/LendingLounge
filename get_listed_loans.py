@@ -1,13 +1,17 @@
 import os
+import pickle
+import urllib2
+import json
 
-from lendingclub import LendingClub
+with open('credentials.json') as credentials_file:
+    credentials = json.load(credentials_file)
 
+api_key = credentials['lending_club']['api_key']
+header = {'Authorization': api_key}
+url = 'https://api.lendingclub.com/api/investor/v1/loans/listing'
+req = urllib2.Request(url, None, header)
+resp = urllib2.urlopen(req)
 
-password = os.environ['LC_PASSWORD'] 
-lc = LendingClub(email='abradle2@gmail.com', password=password)
-
-lc.authenticate()
-
-results = lc.search()
-
-print results['loan_id']
+loans = resp.read()
+json_data = json.loads(loans)
+print json_data['loans'][0]['addrState']
