@@ -1,0 +1,1 @@
+curl -i -X POST -H 'Content-Type: application/json' -d '{"seriesid":["LAUST440000000000003", "LAUST450000000000003", "LAUST460000000000003", "LAUST490000000000003", "LAUST500000000000003", "LAUST520000000000003", "LAUST720000000000003"], "startyear":"2004", "endyear":"2014"}' http://api.bls.gov/publicAPI/v1/timeseries/data/

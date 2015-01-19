@@ -4,6 +4,8 @@ import glob, sys
 from datetime import date
 import pickle
 
+import mysql_connector
+
 ##Load Data
 files = glob.glob('./data/*.csv')
 list1 = []
@@ -93,18 +95,35 @@ loanData['is_inc_v'] = [0 if x == "Not Verified" else x for x in loanData['is_in
 
 ##issue_month and issue_year
 print "issue_month"
+loanData['issue_d'] = pd.to_datetime(loanData['issue_d'])
+loanData['last_pymnt_d'] = pd.to_datetime(loanData['last_pymnt_d'])
+
+#days active
+days_active = loanData['last_pymnt_d'] - loanData['issue_d']
+loanData['days_active'] = [x.item().days for x in days_active]
+
+
+
 loanData['issue_month'] = 0
 loanData['issue_year'] = 0
+loanData['last_pymnt_month'] = 0
+loanData['last_pymnt_year'] = 0
 print "entering for loop issue_m and issue_y"
 for i in range(len(loanData['issue_d'])):
-    print i
     m = pd.to_datetime(loanData['issue_d'][i]).month
     y = pd.to_datetime(loanData['issue_d'][i]).year
     loanData['issue_month'].iloc[i] = m
     loanData['issue_year'].iloc[i] = y
 
-loanData = loanData.drop('issue_d', 1)
+    m_last = pd.to_datetime(loanData['last_pymnt_d'][i]).month
+    y_last = pd.to_datetime(loanData['last_pymnt_d'][i]).year
+    loanData['last_pymnt_month'].iloc[i] = m_last
+    loanData['last_pymnt_year'].iloc[i] = y_last
+    if i%100 == 0:
+    	print i
 
+loanData = loanData.drop('issue_d', 1)
+loanData = loanData.drop('last_pymnt_d', 1)
 
 
 ##pymnt_plan
@@ -125,7 +144,6 @@ loanData['zip_code'] = [x[:3] for x in loanData['zip_code']]
 ##addr_state
 statesBinarized = pd.get_dummies(loanData['addr_state'])
 loanData = pd.concat([loanData, statesBinarized], axis=1)
-loanData = loanData.drop('addr_state', 1)
 
 
 ##yrs_since_first_cr_line
@@ -205,7 +223,6 @@ loanData = loanData.drop(["member_id",
 						  "desc", 
 						  "title",
 						  "emp_title",
-						  "last_pymnt_d",
 						  "last_credit_pull_d",
 						  "last_pymnt_amnt",
 						  "next_pymnt_d"
@@ -219,8 +236,48 @@ loanData = loanData.dropna()
 loanData.index = range(len(loanData))
 print "loans: ", len(loanData)
 
+print "Putting in unemployment rates"
 
+####Putting unemployment data in a dictionary:
+mysql = mysql_connector.MySQL_Connector()
+mysql.connect()
+unemp_rate_tuple = mysql.execute("SELECT * FROM unemployment_rates")
 
+unemp_rate_dict = dict()
+for entry in unemp_rate_tuple:
+	unemp_state = entry[1]
+	unemp_year = entry[2]
+	unemp_month = entry[3]
+	unemp_rate = entry[4]
+	key = "%s%s%s" %(unemp_state, unemp_year, unemp_month)
+	unemp_rate_dict[key] = unemp_rate
+loanData['unemp_rate_12mths'] = 0
+loanData['unemp_rate_6mths'] = 0
+loanData['unemp_rate_3mths'] = 0
+for i, loan in enumerate(loanData):
+	key_12mths = "%s%s%s" %(loanData['addr_state'][i],
+							(loanData['issue_year'][i]-1),
+							loanData['issue_month'][i])
+	if loanData['issue_month'][i] < 6:
+		key_6mths = "%s%s%s" %(loanData['addr_state'][i],
+								(loanData['issue_year'][i]-1),
+								loanData['issue_month'][i]+6)
+	else:
+		key_6mths = "%s%s%s" %(loanData['addr_state'][i],
+								(loanData['issue_year'][i]),
+								loanData['issue_month'][i]-6)
+	if loanData['issue_month'][i] < 3:
+		key_3mths = "%s%s%s" %(loanData['addr_state'][i],
+								(loanData['issue_year'][i]-1),
+								loanData['issue_month'][i]+3)
+	else:
+		key_3mths = "%s%s%s" %(loanData['addr_state'][i],
+								(loanData['issue_year'][i]),
+								loanData['issue_month'][i]-3)
+	loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
+	loanData['unemp_rate_6mths'].iloc[i] = unemp_rate_dict[key_6mths]
+	loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
+mysql.disconnect()
 ##Pickle the dataframe
 print "pickling"
 f = open('data.pickle', 'wb')

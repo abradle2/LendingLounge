@@ -16,8 +16,8 @@ class MySQL_Connector():
 	def execute(self, str):
 		self.cur.execute(str)
 		result = self.cur.fetchall()
-		if result:
-			print result
+		#if result:
+		#	print result
 		return result
 
 	def disconnect(self):

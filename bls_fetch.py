@@ -4,10 +4,10 @@ import prettytable
 
 import mysql_connector
 
-def get_state_unemployment_rate(argyear, argmonth, state):
+def get_state_unemployment_rate():
 
-    #mysql = mysql_connector.MySQL_Connector()
-    #mysql.connect()
+    mysql = mysql_connector.MySQL_Connector()
+    mysql.connect()
 
     state_codes = dict()
     state_codes['AL'] = 'ST0100000000000'
@@ -63,31 +63,28 @@ def get_state_unemployment_rate(argyear, argmonth, state):
     state_codes['WY'] = 'ST5600000000000'  
     state_codes['PR'] = 'ST7200000000000'
 
-    series_IDs = ''
-    for state in state_codes:
-        series_IDs += "\'" + state_codes[state] + "03\', "
-    series_IDs = series_IDs[:-2]
+    inverse_state_codes = dict()
+    for key, val in state_codes.items():
+        inverse_state_codes[val] = key
 
-    headers = {'Content-type': 'application/json'} 
-    exec('data = json.dumps({"seriesid": [%s],"startyear": 2007, \
-                                                 "endyear": 2015})' %series_IDs)
-    
-    print "http://api.bls.gov/publicAPI/v1/timeseries/%s/" %data
-    p = requests.post('http://api.bls.gov/publicAPI/v1/timeseries/data/:10800', data=data, headers=headers) 
-    json_data = json.loads(p.text)
+    data = open('unemployment_stats_4.txt')
+    json_data = json.load(data)
+
+    #json_data = json.loads(p.text)
     for series in json_data['Results']['series']:
-        x=prettytable.PrettyTable(["series id","year","period","value"])
+        x=prettytable.PrettyTable(["series id","state","year","month","value"])
         seriesId = series['seriesID']
+        state = inverse_state_codes[seriesId[3:-2]]
         for item in series['data']:
             year = item['year']
-            period = item['period'][1:]
+            month = item['period'][1:]
             u_rate = item['value']
-            '''
+            
             exists = mysql.execute("SELECT * FROM unemployment_rates \
                                     WHERE state=\'%s\' \
                                     AND year=\'%s\' \
                                     AND month=\'%s\' \
-                                    LIMIT 1" %(state, argyear, argmonth))
+                                    LIMIT 1" %(state, year, month))
             if exists:
                 pass
             else:
@@ -95,15 +92,15 @@ def get_state_unemployment_rate(argyear, argmonth, state):
                                     VALUES (\'%s\', \
                                     \'%s\', \
                                     \'%s\', \
-                                    \'%s\')" %(state, year, period, u_rate)
+                                    \'%s\')" %(state, year, month, u_rate)
                 print statement
                 mysql.execute(statement)
-            '''
             
-            x.add_row([seriesId,year,period,u_rate])
+            
+            
+            x.add_row([seriesId,state,year,month,u_rate])
         print x.get_string()
-        mysql.disconnect()
-        
 
+    mysql.disconnect()
 
-get_state_unemployment_rate(2014, 'M11', 'CO')
+get_state_unemployment_rate()
