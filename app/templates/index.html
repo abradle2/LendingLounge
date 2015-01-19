@@ -64,13 +64,13 @@
                 <!-- /.row -->
 
                 <div class="row">
-                    <div class="col-lg-4" id="single-loan-info">
+                    <div class="col-lg-4" id="loans-info">
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h3 class="panel-title">Loan Information</h3>
                             </div>
                             <div class="panel-body">
-                                <div class="single-loan" id="single-loan-left">
+                                <div class="loan" id="loans-left">
                                     <table id="topTable" class="tablesorter" cellspacing=1> 
 			                            <thead> 
 			                            <tr> 
@@ -95,6 +95,77 @@
 			                            {% endfor %}
 			                            </tbody> 
 			                        </table>
+			                        <div id="loan-detail">
+			                        	<div class="loan-detail" id="loan-detail-borrower">
+			                        		<h3>Borrower</h3>
+			                        		<div class="loan-detail-left">
+				                        		<ul>
+				                        			<li>Loan Submitted:</li>
+				                        			<li>Monthly Payment:</li>
+				                        		</ul>
+			                        		</div>
+			                        		<div class="loan-detail-right">
+				                        		<ul>
+				                        			<li>Review Status:</li>
+				                        			<li>Loan #:</li>
+				                        		</ul>
+			                        		</div>
+			                        	</div>
+			                        	<div class="loan-detail" id="loan-detail-borrower-profile">
+			                        		<h3>Borrower Profile</h3>
+			                        		<div class="loan-detail-left">
+				                        		<ul>
+				                        			<li>Gross Income:</li>
+				                        			<li>Home Ownership:</li>
+				                        			<li>Length of Employment:</li>
+				                        		</ul>
+				                        	</div>
+				                        	<div class="loan-detail-right">
+				                        		<ul>
+				                        			<li>Job Title:</li>
+				                        			<li>Location:</li>
+				                        			<li>Debt-to-Income (DTI):</li>
+				                        		</ul>
+				                        	</div>
+			                        	</div>
+			                        	<div class="loan-detail" id="loan-detail-borrower-credit">
+			                        		<h3>Borrower Credit History</h3>
+			                        		<div class="loan-detail-left">
+				                        		<ul>
+				                        			<li>Credit Score Range:</li>
+				                        			<li>Earliest Credit Line:</li>
+				                        			<li>Open Credit Lines:</li>
+				                        			<li>Total Credit Lines:</li>
+				                        			<li>Revolving Card Balance:</li>
+				                        			<li>Revolving Line Utilization:</li>
+				                        			<li>Inquiries in Last 6 Months:</li>
+				                        			<li>Accounts Now Delinquent:</li>
+				                        		</ul>
+				                        	</div>
+				                        	<div class="loan-detail-right">
+				                        		<ul>
+				                        			<li>Delinquent Amount:</li>
+				                        			<li>Delinquencies (last 2 years):</li>
+				                        			<li>Months Since Last delinquency:</li>
+				                        			<li>Public Records on File:</li>
+				                        			<li>Months Since Last Record:</li>
+				                        			<li>Months Since Last Major Derogatory:</li>
+				                        			<li>Collections Excluding Medical:</li>
+				                        			<li>Space Holder</li>
+				                        		</ul>
+				                        	</div>
+			                        	</div>
+			                        	<div class="loan-detail" id="loan-detail-loan-description">
+			                        		<h3>Loan Description</h3>
+			                        		<ul>
+			                        			<li>Loan description will be printed here</li>
+			                        		</ul>
+			                        	</div>
+			                        	<div class="loan-detail" id="loan-detail-analysis">
+			                        		<h3>Analysis</h3>
+			                        		
+			                        	</div>
+			                        </div>
                                 </div>
                                 
                             </div>

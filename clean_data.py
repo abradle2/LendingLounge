@@ -3,6 +3,7 @@ import numpy as np
 import glob, sys
 from datetime import date
 import pickle
+import base64
 
 import mysql_connector
 
@@ -78,7 +79,6 @@ loanData['emp_length'] = loanData['emp_length'].map(lambda x: emp_years[x])
 
 homeOwnershipBinarized = pd.get_dummies(loanData['home_ownership'])
 loanData = pd.concat([loanData, homeOwnershipBinarized], axis=1)
-loanData = loanData.drop(['home_ownership'], 1)
 
 
 
@@ -122,20 +122,11 @@ for i in range(len(loanData['issue_d'])):
     if i%100 == 0:
     	print i
 
-loanData = loanData.drop('issue_d', 1)
-loanData = loanData.drop('last_pymnt_d', 1)
-
-
-##pymnt_plan
-#loanData['pymnt_plan'] = [1 if x == 'y' else 0 for x in loanData['pymnt_plan']]
-loanData = loanData.drop(["pymnt_plan"], 1) 
-
 
 ##purpose
 print "purpose"
 purposeBinarized = pd.get_dummies(loanData['purpose'])
 loanData = pd.concat([loanData, purposeBinarized], axis=1)
-loanData = loanData.drop('purpose', 1)
 
 ##zip_code
 loanData['zip_code'] = [x[:3] for x in loanData['zip_code']]
@@ -152,7 +143,6 @@ loanData['yrs_since_first_cr_line'] = 0
 for i in range(len(loanData['earliest_cr_line'])):
     earliest_year = pd.to_datetime(loanData['earliest_cr_line'][i]).year
     loanData['yrs_since_first_cr_line'].iloc[i] = date.today().year - earliest_year
-loanData = loanData.drop('earliest_cr_line', 1)
 
 
 ##delinquencies
@@ -187,7 +177,7 @@ loanData['collections_12_mths_ex_med'] = [-1 if pd.isnull(x) else x for x in loa
 print "removing features"
 #loanData = loanData.drop('total_pymnt', 1)
 loanData = loanData.drop('initial_list_status', 1)
-loanData = loanData.drop('policy_code', 1)
+
 
 
 loanData['loan_status'] = [0 if x in ['Charged Off',
@@ -195,6 +185,7 @@ loanData['loan_status'] = [0 if x in ['Charged Off',
 								      'Does not meet the credit policy.  Status:Charged Off',
 								      'Does not meet the credit policy.  Status:Default'
 						   			 ] else 1 for x in loanData['loan_status'] ]
+
 
 
 ##desc_length
@@ -208,32 +199,14 @@ loanData['title_length'] = [len(str(x)) for x in loanData['title']]
 loanData['emp_title'] = [len(str(x)) for x in loanData['emp_title']]
 
 
-loanData = loanData.drop(["member_id", 
-						  "id", 
-						  "url", 
-						  "out_prncp", 
-						  "out_prncp_inv", 
-						  "total_pymnt_inv", 
-						  "total_rec_prncp", 
-						  "total_rec_int", 
-						  "total_rec_late_fee",
-						  "recoveries", 
-						  "collection_recovery_fee", 
-						  "last_pymnt_amnt",
-						  "desc", 
-						  "title",
-						  "emp_title",
-						  "last_credit_pull_d",
-						  "last_pymnt_amnt",
-						  "next_pymnt_d"
-						  ], 1)
-
+##desc
+loanData['desc'] = [base64.b64encode(str(x)) for x in loanData['desc']]
 
 
 ##Drop loans with missing values
-print "dropping NAs"
-loanData = loanData.dropna()
-loanData.index = range(len(loanData))
+#print "dropping NAs"
+#loanData = loanData.dropna()
+#loanData.index = range(len(loanData))
 print "loans: ", len(loanData)
 
 print "Putting in unemployment rates"
@@ -255,10 +228,11 @@ loanData['unemp_rate_12mths'] = 0
 loanData['unemp_rate_6mths'] = 0
 loanData['unemp_rate_3mths'] = 0
 for i, loan in enumerate(loanData):
+	print i, loanData['addr_state'][i], loanData['issue_year'][i], loanData['issue_month'][i]
 	key_12mths = "%s%s%s" %(loanData['addr_state'][i],
 							(loanData['issue_year'][i]-1),
 							loanData['issue_month'][i])
-	if loanData['issue_month'][i] < 6:
+	if loanData['issue_month'][i] <= 6:
 		key_6mths = "%s%s%s" %(loanData['addr_state'][i],
 								(loanData['issue_year'][i]-1),
 								loanData['issue_month'][i]+6)
@@ -266,7 +240,7 @@ for i, loan in enumerate(loanData):
 		key_6mths = "%s%s%s" %(loanData['addr_state'][i],
 								(loanData['issue_year'][i]),
 								loanData['issue_month'][i]-6)
-	if loanData['issue_month'][i] < 3:
+	if loanData['issue_month'][i] <= 3:
 		key_3mths = "%s%s%s" %(loanData['addr_state'][i],
 								(loanData['issue_year'][i]-1),
 								loanData['issue_month'][i]+3)
@@ -274,10 +248,15 @@ for i, loan in enumerate(loanData):
 		key_3mths = "%s%s%s" %(loanData['addr_state'][i],
 								(loanData['issue_year'][i]),
 								loanData['issue_month'][i]-3)
-	loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
-	loanData['unemp_rate_6mths'].iloc[i] = unemp_rate_dict[key_6mths]
-	loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
-mysql.disconnect()
+	try:
+		loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
+		loanData['unemp_rate_6mths'].iloc[i] = unemp_rate_dict[key_6mths]
+		loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
+	except KeyError:
+		print KeyError, "loan ", i
+		loanData = loanData.drop(loanData.index[i])
+
+
 ##Pickle the dataframe
 print "pickling"
 f = open('data.pickle', 'wb')
@@ -285,3 +264,41 @@ pickle.dump(loanData, f)
 f.close()
 
 
+##Writing cleaned data to the database
+col_string = ""
+for col in loanData.columns:
+    if col == "desc":
+        next_col = "description"
+    elif col == "ID":
+        next_col = "IDAHO"
+    elif col == "IN":
+        next_col = "INDIANA"
+    elif col == "OR":
+        next_col = "OREGON"
+    elif col == "OTHER":
+        next_col = "other_housing"
+    elif col == "other":
+        next_col = "other_purpose"
+    else:
+        next_col = col
+    col_string += "%s," %(next_col)
+col_string = col_string[:-1]
+
+for i in range(len(loanData)-1):
+	vals_string = ""
+	for item in loanData.iloc[i]:
+	    vals_string += "'" + str(item) + "',"
+	vals_string = vals_string[:-1]
+	sql_insert_string = "INSERT INTO loans (%s) VALUES (%s)" %(col_string, vals_string)
+	if i%1000 == 0:
+	    print "Inserting %s into database" %i
+	try:
+		insert_query = mysql.execute(sql_insert_string)
+	except:
+		print "Insert Failed "
+		e = sys.exc_info()[0]
+		print e
+		print loanData.iloc[i]
+
+
+mysql.disconnect()
