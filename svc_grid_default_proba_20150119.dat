@@ -1,0 +1,13 @@
+Loading data.pickle
+Loans in training set:  49618
+Defaults in training set:  9355
+Loans in testing set:  49619
+Defaults in testing set:  9170
+Reduced data down to  30  dimensions: 
+Transforming test data ...
+
+
+ C:  0.001   gamma:  0.0001
+Using a Support Vector Machine Classifier ...
+{'kernel': 'rbf', 'C': 0.001, 'verbose': True, 'probability': False, 'degree': 3, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 0.0001, 'class_weight': 'auto'}
+[LibSVM]...

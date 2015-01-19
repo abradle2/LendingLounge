@@ -183,22 +183,13 @@ ul.alert-dropdown {
 /* Custom CSS Added by Aaron */
 
 #single-loan-info {
-    width: 30%;
+    width: 60%;
 }
 
 #graph-div {
-    width: 70%;
+    width: 40%;
 }
 
-#single-loan-left {
-    float: left;
-    width: 50%;
-}
-
-#single-loan-right {
-    float: left;
-    width: 50%;
-}
 
 .single-loan li {
     list-style-type:none

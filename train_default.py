@@ -45,7 +45,7 @@ class Trainer():
 								  'total_pymnt', 
 								  'days_active'], 1)
 
-	def split_train_test(self, test_size=0.2):
+	def split_train_test(self, test_size=0.5):
 
 		features = self.loanData.drop(['loan_status'], 1).values
 		targets = self.loanData['loan_status'].values
@@ -56,6 +56,12 @@ class Trainer():
 		self.y_train = self.y_train.astype(float)
 		self.X_test = self.X_test.astype(float)
 		self.y_test = self.y_test.astype(float)
+
+		print "Loans in training set: ", len(self.y_train)
+		print "Defaults in training set: ", np.sum(self.y_train == 0)
+		print "Loans in testing set: ", len(self.y_test)
+		print "Defaults in testing set: ", np.sum(self.y_test == 0)
+
 
 	def scale(self):
 		self.scalerX = StandardScaler().fit(self.X_train)
@@ -73,8 +79,8 @@ class Trainer():
 		self.X_train = minMaxScaler.fit_transform(self.X_train)
 		self.X_test = minMaxScaler.fit_transform(self.X_test)
 
-	def run_pca(self, n_components):
-		self.pca = PCA(n_components=20)
+	def run_pca(self, n_components=20):
+		self.pca = PCA(n_components=n_components)
 		self.X_train = self.pca.fit_transform(self.X_train)
 		print "Reduced data down to ", self.pca.n_components_, " dimensions: "
 		print "Transforming test data ..."
@@ -106,8 +112,8 @@ class Trainer():
 		#print "feature importances:"
 		#print self.clf.feature_importances_
 
-	def predict(self):
-		self.prediction = self.clf.predict(self.X_test)
+	def predict(self, X):
+		self.prediction = self.clf.predict(X)
 
 	def confusion_mat(self):
 		cm = confusion_matrix(self.y_test, self.prediction)
@@ -128,13 +134,16 @@ class Trainer():
 				self.defineSVC(C=C, gamma=gamma)
 				self.train()
 				print "Training Scores:"
-				self.score(self.X_train, self.y_train)
+				self.predict(self.X_train)
+				self.score(self.y_train, self.prediction)
 				print "Testing Scores:"
-				self.score(self.X_test, self.y_test)
+				self.predict(self.X_test)
+				self.score(self.y_test, self.prediction)
 
 trainer = Trainer()
 trainer.standardize_samples()
 trainer.scale_samples_to_range()
+trainer.run_pca(30)
 trainer.runSVCGridSearch()
 
 '''

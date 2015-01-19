@@ -58,36 +58,7 @@
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <table id="topTable" class="tablesorter" cellspacing=1> 
-                            <thead> 
-                            <tr> 
-                                <th>Loan ID</th> 
-                                <th>Member</th> 
-                                <th>Grade</th> 
-                                <th>Interest Rate</th> 
-                                <th>Amount</th> 
-                                <th>Default Prob.</th>
-                            </tr> 
-                            </thead> 
-                            <tbody> 
-                            <tr> 
-                                <td>119283</td> 
-                                <td>J. Bob</td> 
-                                <td>A2</td> 
-                                <td>6.24%</td> 
-                                <td>$5000.00</td>
-                                <td>7.2%</td> 
-                            </tr>
-                            <tr> 
-                                <td>119341</td> 
-                                <td>S. Rob</td> 
-                                <td>D4</td> 
-                                <td>18.30%</td> 
-                                <td>$4500.00</td>
-                                <td>63.3%</td>
-                            </tr>  
-                            </tbody> 
-                        </table> 
+                         
                     </div>
                 </div>
                 <!-- /.row -->
@@ -100,38 +71,30 @@
                             </div>
                             <div class="panel-body">
                                 <div class="single-loan" id="single-loan-left">
-                                    <ul>
-                                        <li>Loan ID</li>
-                                        <li>Member ID</li>
-                                        <li>Loan Amount</li>
-                                        <li>Grade</li>
-                                        <li>Interest Rate</li>
-                                        <li>Annual Income</li>
-                                        <li>DTI</li>
-                                        <li>Occupation</li>
-                                        <li>State</li>
-                                        <li>Open Accounts</li>
-                                        <li>Revolving Balance</li>
-                                        <li>Default Probability</li>
-                                        <li>Estimated Default Time</li>
-                                    </ul>
-                                </div>
-                                <div class="single-loan" id="single-loan-right">
-                                    <ul>
-                                        <li>2384</li>
-                                        <li>234098</li>
-                                        <li>$4300.00</li>
-                                        <li>B3</li>
-                                        <li>14.43%</li>
-                                        <li>$43000.00</li>
-                                        <li>0.34</li>
-                                        <li>Accountant</li>
-                                        <li>CA</li>
-                                        <li>9</li>
-                                        <li>$23000.00</li>
-                                        <li>67%</li>
-                                        <li>18 months</li>
-                                    </ul>
+                                    <table id="topTable" class="tablesorter" cellspacing=1> 
+			                            <thead> 
+			                            <tr> 
+			                                <th>Loan ID</th> 
+			                                <th>Member</th> 
+			                                <th>Grade</th> 
+			                                <th>Interest Rate</th> 
+			                                <th>Amount</th> 
+			                                <th>Default Prob.</th>
+			                            </tr> 
+			                            </thead> 
+			                            <tbody>
+			                            {% for loan in loans %}
+			                            <tr> 
+			                                <td>{{loan['id']}}</td> 
+			                                <td>{{loan['memberId']}}</td> 
+			                                <td>{{loan['grade']}}</td> 
+			                                <td>{{loan['intRate']}}</td> 
+			                                <td>{{loan['loanAmnt']}}</td>
+			                                <td>{{loan['defaultProb']}}</td> 
+			                            </tr>
+			                            {% endfor %}
+			                            </tbody> 
+			                        </table>
                                 </div>
                                 
                             </div>
