@@ -9,7 +9,9 @@ class MySQL_Connector():
 	def __init__(self):
 		pass
 	def connect(self):
-		passwd = os.environ['MYSQL_PASSWORD']
+		with open('credentials.json') as credentials_file:
+    		credentials = json.load(credentials_file)
+    	passwd = credentials['mysql']['password']
 		self.conn = pymysql.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
 		self.cur = self.conn.cursor()
 

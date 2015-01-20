@@ -7,7 +7,12 @@ import pickle
 import os
 import pymysql as mdb
 from pandas.io import sql
+import json
 
+with open('credentials.json') as credentials_file:
+    credentials = json.load(credentials_file)
+
+passwd = credentials['mysql']['password']
 passwd = os.environ['MYSQL_PASSWORD']
 con = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
 
