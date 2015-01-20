@@ -26,24 +26,27 @@ import matplotlib.pyplot as plt
 
 class Trainer():
 	def __init__(self):
-		self.load_data('data.pickle')
-		self.drop_columns()
+		self.load_data('mysql_dump.pickle')
+		#self.drop_columns()
 		self.split_train_test()
 
 	def load_data(self, fileName):
 		print "Loading %s" %fileName
 		f = open(fileName, 'rb')
 		self.loanData = pickle.load(f)
+		#Do some manipulations. MOVE THIS TO DB EVENTUALLY
+		self.loanData = self.loanData[self.loanData['annual_inc'] > 0]
+		self.loanData['last_pymnt_d'] = pd.to_datetime(self.loanData['last_pymnt_d'])
+		self.loanData['issue_d'] = pd.to_datetime(self.loanData['issue_d'])
+		days_active = self.loanData['last_pymnt_d'] - loanData['issue_d']
+		self.loanData['days_active'] = [x.item().days for x in days_active]
+		self.loanData = self.loanData.drop(['issue_d', 'last_pymnt_d'], 1)
+		self.loanData = self.loanData.dropna()
+		self.loanData.index = range(len(self.loanData))
+		self.loanData['install_frac_of_monthly_inc'] = self.loanData['installment']/self.loanData['annual_inc']*12.0
 
 	def drop_columns(self):
-		self.loanData = self.loanData.drop(['funded_amnt', 
-								  'funded_amnt_inv', 
-								  'addr_state', 
-								  'total_pymnt',
-								  'last_pymnt_month', 
-								  'last_pymnt_year', 
-								  'total_pymnt', 
-								  'days_active'], 1)
+		self.loanData = self.loanData.drop([''], 1)
 
 	def split_train_test(self, test_size=0.5):
 
@@ -143,7 +146,7 @@ class Trainer():
 trainer = Trainer()
 trainer.standardize_samples()
 trainer.scale_samples_to_range()
-trainer.run_pca(30)
+trainer.run_pca(50)
 trainer.runSVCGridSearch()
 
 '''

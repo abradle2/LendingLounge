@@ -99,8 +99,8 @@ loanData['issue_d'] = pd.to_datetime(loanData['issue_d'])
 loanData['last_pymnt_d'] = pd.to_datetime(loanData['last_pymnt_d'])
 
 #days active
-#days_active = loanData['last_pymnt_d'] - loanData['issue_d']
-#loanData['days_active'] = [x.item().days for x in days_active]
+days_active = loanData['last_pymnt_d'] - loanData['issue_d']
+loanData['days_active'] = [x.item().days for x in days_active]
 
 
 

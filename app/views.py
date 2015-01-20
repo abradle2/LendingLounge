@@ -2,60 +2,54 @@ from flask import render_template
 from app import app
 import pymysql as mdb
 import os
+import mysql_connector
 
-
-#passwd = os.environ['MYSQL_PASSWORD']
-#db = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
+passwd = os.environ['MYSQL_PASSWORD']
+db = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
 
 @app.route('/')
 @app.route('/index')
 
 def index():
-
-	a = 3
-	loans = []
-	loans.append({'id':1231, 
-				  'memberId': 234, 
-				  'grade': 'A2', 
-				  'intRate': 8.2, 
-				  'loanAmnt': 1500.00,
-				  'defaultProb': 12.3,
-				  'annualInc': 37000,
-				  'dti': 0.43,
-				  'occupation': 'Accountant',
-				  'addrState': 'CA',
-				  'openAccts': 9,
-				  'revolBl': 12000,
-				  'defaultPeriod': 10})
-	loans.append({'id':1231, 
-				  'memberId': 234, 
-				  'grade': 'A2', 
-				  'intRate': 8.2, 
-				  'loanAmnt': 1500.00,
-				  'defaultProb': 12.3,
-				  'annualInc': 37000,
-				  'dti': 0.43,
-				  'occupation': 'Accountant',
-				  'addrState': 'CA',
-				  'openAccts': 9,
-				  'revolBl': 12000,
-				  'defaultPeriod': 10})
-	
-	return render_template("index.html",
-				loans=loans)
-
-
-'''
-@app.route('/db')
-
-def states_page():
 	with db:
 		cur = db.cursor()
-		cur.execute("SELECT state from unemployment_rates LIMIT 15;")
+		cur.execute("SELECT * from listed_loans LIMIT 10;")
 		query_results = cur.fetchall()
-	states = ""
+	loans = []
 	for result in query_results:
-		states += result[0]
-		states += "<br>"
-	return states
-'''
+		loans.append({'AsOfDate':result[0],
+					  'id':result[1], 
+					  'memberId': result[2],
+					  'term':result[3],
+					  'intRate': result[4],
+					  'defaultProb': result[5],
+					  'serviceFeeRate':result[6],
+					  'installment':result[7],
+					  'grade': result[9],
+					  'empLength':result[10],
+					  'homeOwnership':result[11],
+					  'annualInc': result[12],
+					  'isIncV':result[13],
+					  'acceptD':result[14],
+					  'expD':result[15],
+					  'listD':result[16],
+					  'creditPullD':result[17],
+					  'reviewStatusD':result[18],
+					  'reviewStatus':result[19],
+					  'description':result[20],
+					  'purpose':result[21],
+					  'addrZip':result[22],
+					  'addrState': result[23],
+					  'investorCount':result[24],
+					  'ilExpD':result[25],
+					  'initialListStatus':result[26],
+					  'dti': result[32],
+					  'occupation': result[27],
+					  
+					  'openAccts': result[45],
+					  'revolBl': result[48],
+					  'defaultPeriod': 10})
+
+	
+	return render_template("index.html",
+				loans=loans, query_results=query_results[0][1])

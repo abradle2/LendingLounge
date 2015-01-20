@@ -2,3 +2,8 @@
 
 - 2012: Lending club lowered average FICO score from 716 to 700 and increased average interest rate from 10.8% to 13.0%
 
+--WORKFLOW
+1) clean_data.py
+2) load_data_from_db.py
+3) train_default.py
+4) train_roi.py
