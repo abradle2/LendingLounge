@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "train_default.py", line 146, in <module>
+    trainer = Trainer()
+  File "train_default.py", line 29, in __init__
+    self.load_data('mysql_dump.pickle')
+  File "train_default.py", line 42, in load_data
+    self.loanData['days_active'] = [x.item().days for x in days_active]
+AttributeError: 'Timedelta' object has no attribute 'item'
