@@ -38,7 +38,7 @@ class Trainer():
 		self.loanData = self.loanData[self.loanData['annual_inc'] > 0]
 		self.loanData['last_pymnt_d'] = pd.to_datetime(self.loanData['last_pymnt_d'])
 		self.loanData['issue_d'] = pd.to_datetime(self.loanData['issue_d'])
-		days_active = self.loanData['last_pymnt_d'] - loanData['issue_d']
+		days_active = self.loanData['last_pymnt_d'] - self.loanData['issue_d']
 		self.loanData['days_active'] = [x.item().days for x in days_active]
 		self.loanData = self.loanData.drop(['issue_d', 'last_pymnt_d'], 1)
 		self.loanData = self.loanData.dropna()
