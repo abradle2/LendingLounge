@@ -4,6 +4,7 @@ import glob, sys
 from datetime import date
 import pickle
 from random import randint
+from datetime import datetime
 
 from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -34,16 +35,9 @@ class Trainer():
 		print "Loading %s" %fileName
 		f = open(fileName, 'rb')
 		self.loanData = pickle.load(f)
-		#Do some manipulations. MOVE THIS TO DB EVENTUALLY
-		self.loanData = self.loanData[self.loanData['annual_inc'] > 0]
-		self.loanData['last_pymnt_d'] = pd.to_datetime(self.loanData['last_pymnt_d'])
-		self.loanData['issue_d'] = pd.to_datetime(self.loanData['issue_d'])
-		days_active = self.loanData['last_pymnt_d'] - self.loanData['issue_d']
-		self.loanData['days_active'] = [x.item().days for x in days_active]
+
 		self.loanData = self.loanData.drop(['issue_d', 'last_pymnt_d'], 1)
-		self.loanData = self.loanData.dropna()
-		self.loanData.index = range(len(self.loanData))
-		self.loanData['install_frac_of_monthly_inc'] = self.loanData['installment']/self.loanData['annual_inc']*12.0
+		
 
 	def drop_columns(self):
 		self.loanData = self.loanData.drop([''], 1)
@@ -128,8 +122,8 @@ class Trainer():
 		plt.show()
 
 	def runSVCGridSearch(self):
-		C_vals = [0.001, 0.01, 0.1, 1, 10, 100]
-		gamma_vals = [1E-4, 1E-3, 1E-2, 1E-1, 1, 1E1, 1E2, 1E3, 1E4]
+		C_vals = [0.01, 0.1, 1, 10, 100]
+		gamma_vals = [1E-2, 1E-1, 1, 1E1, 1E2, 1E3, 1E4]
 
 		for C in C_vals:
 			for gamma in gamma_vals:

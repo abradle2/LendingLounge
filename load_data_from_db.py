@@ -127,7 +127,9 @@ features_defaults = [
 			"other_housing",               
 			"other_purpose",
 			"issue_d",
-			"last_pymnt_d"]
+			"last_pymnt_d",
+			"install_frac_of_monthly_inc",
+			"implied_risk"]
 
 sql_query = "SELECT "
 for feat in features_defaults:

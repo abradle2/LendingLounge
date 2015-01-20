@@ -2,13 +2,14 @@ import pandas as pd
 import numpy as np
 import glob, sys
 from datetime import date
+from datetime import datetime
 import pickle
 import base64
 
 import mysql_connector
 
 ##Load Data
-files = glob.glob('./data/*.csv')
+files = glob.glob('./data/LoanStats3a.csv')
 list1 = []
 for fileName in files:
     print "loading file ", fileName
@@ -91,17 +92,21 @@ loanData['is_inc_v'] = [1 if x == "Source Verified" else x for x in loanData['is
 loanData['is_inc_v'] = [2 if x == "Verified" else x for x in loanData['is_inc_v']]
 loanData['is_inc_v'] = [0 if x == "Not Verified" else x for x in loanData['is_inc_v']]
 
+##Deal with datetimes and create days_active
+loanData = loanData[pd.notnull(loanData['last_pymnt_d'] )]
+loanData.index = range(len(loanData))
+print loanData['last_pymnt_d'].unique()
+
+loanData['issue_d'] = [datetime.strptime(str(x), '%b-%Y') for x in loanData['issue_d']]
+loanData['last_pymnt_d'] = [datetime.strptime(str(x), '%b-%Y') for x in loanData['last_pymnt_d']]
+days_active = [(loanData['last_pymnt_d'][i] - loanData['issue_d'][i]).days for i in range(len(loanData))]
+loanData['days_active'] = days_active
 
 
 ##issue_month and issue_year
 print "issue_month"
 loanData['issue_d'] = pd.to_datetime(loanData['issue_d'])
 loanData['last_pymnt_d'] = pd.to_datetime(loanData['last_pymnt_d'])
-
-#days active
-days_active = loanData['last_pymnt_d'] - loanData['issue_d']
-loanData['days_active'] = [x.item().days for x in days_active]
-
 
 
 loanData['issue_month'] = 0
@@ -202,6 +207,13 @@ loanData['emp_title'] = [len(str(x)) for x in loanData['emp_title']]
 ##desc
 loanData['desc'] = [base64.b64encode(str(x)) for x in loanData['desc']]
 
+##Drop 0 and negative annual incomes. Also drop huge incomes
+loanData = loanData[loanData['annual_inc'] > 0]
+loanData = loanData[loanData['annual_inc'] < 2000000]
+
+##engineer new feature
+loanData['install_frac_of_monthly_inc'] = loanData['installment']/loanData['annual_inc']*12.0
+
 
 ##Drop loans with missing values
 #print "dropping NAs"
@@ -228,7 +240,6 @@ loanData['unemp_rate_12mths'] = 0
 loanData['unemp_rate_6mths'] = 0
 loanData['unemp_rate_3mths'] = 0
 for i, loan in enumerate(loanData):
-	print i, loanData['addr_state'][i], loanData['issue_year'][i], loanData['issue_month'][i]
 	key_12mths = "%s%s%s" %(loanData['addr_state'][i],
 							(loanData['issue_year'][i]-1),
 							loanData['issue_month'][i])
@@ -255,6 +266,35 @@ for i, loan in enumerate(loanData):
 	except KeyError:
 		print KeyError, "loan ", i
 		loanData = loanData.drop(loanData.index[i])
+		loanData.index = range(len(loanData))
+
+
+#Putting in interest rate swap-engineered feature
+print "calculating implied risk"
+int_rate_swap_tuple = mysql.execute("SELECT * FROM interest_rate_swaps")
+
+int_rate_swap_dict = dict()
+for entry in int_rate_swap_tuple:
+	int_rate_swap_year = entry[1]
+	int_rate_swap_rate = entry[3]
+	int_rate_swap_dict[int_rate_swap_year] = int_rate_swap_rate
+	unemp_rate_dict[key] = unemp_rate
+loanData['implied_risk'] = 0
+loanData.index = range(len(loanData))
+indices_to_drop = []
+for i in range(len(loanData)):
+    if i%100 == 0:
+        print i
+    year_i = loanData['issue_year'][i]
+    swap_rate_i = int_rate_swap_dict[year_i]
+    int_rate_i = loanData['int_rate'][i]
+    impl_risk = int_rate_i - swap_rate_i
+    try:
+        loanData['implied_risk'].iloc[i] = impl_risk
+    except Error:
+        print Error, "loan ", i
+loanData = loanData[loanData['implied_risk'] != 0]
+loanData.index = range(len(loanData))
 
 
 ##Pickle the dataframe
@@ -289,16 +329,18 @@ for i in range(len(loanData)-1):
 	for item in loanData.iloc[i]:
 	    vals_string += "'" + str(item) + "',"
 	vals_string = vals_string[:-1]
-	sql_insert_string = "INSERT INTO loans (%s) VALUES (%s)" %(col_string, vals_string)
+	sql_insert_string = "INSERT INTO completed_loans (%s) VALUES (%s)" %(col_string, vals_string)
 	if i%1000 == 0:
 	    print "Inserting %s into database" %i
 	try:
 		insert_query = mysql.execute(sql_insert_string)
 	except:
 		print "Insert Failed "
-		e = sys.exc_info()[0]
+		e = sys.exc_info()
 		print e
 		print loanData.iloc[i]
+	
 
 
 mysql.disconnect()
+
