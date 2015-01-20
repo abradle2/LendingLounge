@@ -28,19 +28,23 @@ import matplotlib.pyplot as plt
 class Trainer():
 	def __init__(self):
 		self.load_data('mysql_dump.pickle')
-		#self.drop_columns()
+		self.drop_columns()
+		self.loanData = self.loanData.dropna()
+		self.loanData.index = range(len(self.loanData))
 		self.split_train_test()
 
 	def load_data(self, fileName):
 		print "Loading %s" %fileName
 		f = open(fileName, 'rb')
 		self.loanData = pickle.load(f)
-		
-		self.loanData = self.loanData.drop(['issue_d', 'last_pymnt_d'], 1)
-		
 
 	def drop_columns(self):
-		self.loanData = self.loanData.drop([''], 1)
+		self.loanData = self.loanData.drop(['Any', 
+											'issue_d', 
+											'last_pymnt_d',
+											'unemp_rate_3mths',
+											'unemp_rate_6mths',
+											'unemp_rate_12mths'], 1)
 
 	def split_train_test(self, test_size=0.5):
 
