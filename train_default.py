@@ -35,20 +35,9 @@ class Trainer():
 		print "Loading %s" %fileName
 		f = open(fileName, 'rb')
 		self.loanData = pickle.load(f)
-		#Do some manipulations. MOVE THIS TO DB EVENTUALLY
-		self.loanData = self.loanData[self.loanData['annual_inc'] > 0]
-		self.loanData = self.loanData.drop(['days_active'], 1)
-		self.loanData = self.loanData.dropna()
-		self.loanData = self.loanData[self.loanData['last_pymnt_d'] != 'NaT']
-		self.loanData.index = range(len(self.loanData))
-
-		self.loanData['issue_d'] = [datetime.strptime(x, '%Y-%m-%d %H:%M:%S') for x in self.loanData['issue_d']]
-		self.loanData['last_pymnt_d'] = [datetime.strptime(x, '%Y-%m-%d %H:%M:%S') for x in self.loanData['last_pymnt_d']]
-		days_active = [(self.loanData['last_pymnt_d'][i] - self.loanData['issue_d'][i]).days for i in range(len(self.loanData))]
-		self.loanData['days_active'] = days_active
+		
 		self.loanData = self.loanData.drop(['issue_d', 'last_pymnt_d'], 1)
-
-		self.loanData['install_frac_of_monthly_inc'] = self.loanData['installment']/self.loanData['annual_inc']*12.0
+		
 
 	def drop_columns(self):
 		self.loanData = self.loanData.drop([''], 1)
