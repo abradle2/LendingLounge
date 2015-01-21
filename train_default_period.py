@@ -36,23 +36,29 @@ loanData = pickle.load(f)
 
 loanData = pd.DataFrame(loanData)
 
-loanData = loanData.drop(['Any'], 1)
+loanData = loanData.drop(['Any',
+						  'title_length',
+						  'out_prncp',
+						  'out_prncp_inv',
+						  'unemp_rate_12mths',
+						  'unemp_rate_6mths',
+						  'unemp_rate_3mths'], 1)
 
 loanData = loanData[loanData['annual_inc'] > 0]
 
-loanData = loanData.drop(['days_active'], 1)
+#loanData = loanData.drop(['days_active'], 1)
 
 loanData = loanData.dropna()
 
-loanData = loanData[loanData['last_pymnt_d'] != 'NaT']
-loanData.index = range(len(loanData))
+#loanData = loanData[loanData['last_pymnt_d'] != 'NaT']
+#loanData.index = range(len(loanData))
 
-loanData['issue_d'] = [datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S') for x in loanData['issue_d']]
-loanData['last_pymnt_d'] = [datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S') for x in loanData['last_pymnt_d']]
+#loanData['issue_d'] = [datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S') for x in loanData['issue_d']]
+#loanData['last_pymnt_d'] = [datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S') for x in loanData['last_pymnt_d']]
 
-days_active = [(loanData['last_pymnt_d'][i] - loanData['issue_d'][i]).days for i in range(len(loanData))]
+#days_active = [(loanData['last_pymnt_d'][i] - loanData['issue_d'][i]).days for i in range(len(loanData))]
 
-loanData['days_active'] = days_active
+#loanData['days_active'] = days_active
 
 loanData = loanData.drop(['issue_d', 'last_pymnt_d'], 1)
 
@@ -64,7 +70,11 @@ for i, val in enumerate(loanData['days_active']):
     if loanData['loan_status'][i] == 0:
         loanData['days_to_default'].iloc[i] = loanData['days_active'].iloc[i]
 
-features = loanData.drop(['loan_status', 'days_active'], 1).values
+features = loanData.drop(['loan_status', 'days_active', 'days_to_default'], 1)
+for col in features.columns:
+	print col
+
+fatures = features.values
 targets = loanData['days_active'].values
 
 X_train, X_test, y_train, y_test = train_test_split(features, 
@@ -87,6 +97,14 @@ clf.fit(X_train, y_train)
 clf.score(X_test, y_test)
 
 prediction = clf.predict(X_test)
+
+
+f = open('default_regression_algorithm_20150121.pickle', 'wb')
+pickle.dump(clf, f)
+f.close()
+
+
+print X_test.shape
 
 plt.scatter(prediction, y_test)
 plt.xlabel('prediction')

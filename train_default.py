@@ -47,7 +47,9 @@ class Trainer():
 											'last_pymnt_d',
 											'unemp_rate_3mths',
 											'unemp_rate_6mths',
-											'unemp_rate_12mths'], 1)
+											'unemp_rate_12mths',
+											'days_active'
+											], 1)
 
 	def drop_some_pos_samples(self):
 		for i in range(30000):

@@ -1,7 +1,84 @@
 $(document).ready(function() {
     tablesorter();
-    default_prob_chart();
+    draw_default_prob_chart([[1,2], [3,3]]);
+    // $.ajax({
+    //   type: "GET",
+    //   url: "./default_prob",
+    //   data: {  }
+    // })
+    //   .done(function( data ) {
+    //     console.log(data)
+
+    //     draw_default_prob_chart(data)
+    //   });
+
 });
+
+function draw_default_prob_chart(data) {
+
+    var options = {
+        chart: {
+                renderTo: 'default-prob-chart',
+                type: 'scatter'
+            },
+        title: {
+            text: 'Predicted Default Probability',
+            x: -20 //center
+        },
+        xAxis: {
+            categories: []
+        },
+        yAxis: {
+            title: {
+                text: 'Probability of Default (%)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        xAxis: {
+            title: {
+                text: 'Loan Number'
+            }
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 5,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>Loan {point.x}<br>{point.y}%</b><br>',
+                    pointFormat: ''
+                }
+            }
+        },
+        series: [{
+            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
+        }]
+    }
+    $.getJSON("./default_prob", function(json) {
+        console.log(json['loan_id'])
+        console.log(json['default_prob'])
+        options.series[0].data = json['default_prob'];
+        options.xAxis.categories = json['loan_id'];
+        chart = new Highcharts.Chart(options);
+    });
+};
 
 function tablesorter() {
     $('.tablesorter').tablesorter({
@@ -91,37 +168,5 @@ function tablesorter() {
         // *** send messages to console ***
         debug : false
     });
-};
-
-
-function default_prob_chart() {
-      // Create a Bar Chart with Morris
-      var chart = Morris.Line({
-        // ID of the element in which to draw the chart.
-        element: 'default-prob-chart',
-        data: [0, 0], // Set initial data (ideally you would provide an array of default data)
-        xkey: 'loan_id', // Set the key for X-axis
-        ykeys: ['default_prob'], // Set the key for Y-axis
-        labels: ['Orders'] // Set the label when bar is rolled over
-      });
-
-      // Fire off an AJAX request to load the data
-      $.ajax({
-          console.log('firing ajax');
-          type: "GET",
-          dataType: 'json',
-          url: "/default_prob", // This is the URL to the API
-          data: {} // Passing a parameter to the API to specify number of days
-        })
-        .done(function( data ) {
-          // When the response to the AJAX request comes back render the chart with new data
-          alert(data);
-          chart.setData(data);
-        })
-        .fail(function() {
-          // If there is no communication between the server, show an error
-          alert( "error occured" );
-        });
-    
 };
 
