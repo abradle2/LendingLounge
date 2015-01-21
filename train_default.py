@@ -31,12 +31,15 @@ class Trainer():
 		self.drop_columns()
 		self.loanData = self.loanData.dropna()
 		self.loanData.index = range(len(self.loanData))
+		self.originalLoanData.index = range(len(self.originalLoanData))
+		self.drop_some_pos_samples()
 		self.split_train_test()
 
 	def load_data(self, fileName):
 		print "Loading %s" %fileName
 		f = open(fileName, 'rb')
 		self.loanData = pickle.load(f)
+		self.originalLoanData = self.loanData	#including dropped columns
 
 	def drop_columns(self):
 		self.loanData = self.loanData.drop(['Any', 
@@ -46,7 +49,15 @@ class Trainer():
 											'unemp_rate_6mths',
 											'unemp_rate_12mths'], 1)
 
-	def split_train_test(self, test_size=0.5):
+	def drop_some_pos_samples(self):
+		for i in range(30000):
+			if self.loanData['loan_status'][i] == 1:
+				self.loanData['loan_status'].iloc[i] = 3
+				self.originalLoanData['loan_status'].iloc[i] = 3
+		self.loanData = self.loanData[self.loanData['loan_status'] != 3]
+		self.originalLoanData = self.originalLoanData[self.originalLoanData['loan_status'] != 3]
+
+	def split_train_test(self, test_size=0.2):
 
 		features = self.loanData.drop(['loan_status'], 1).values
 		targets = self.loanData['loan_status'].values
@@ -102,6 +113,7 @@ class Trainer():
 		print self.clf.get_params()
 
 	def train(self):
+		print "training classifier"
 		self.clf.fit(self.X_train, self.y_train)
 
 	def score(self, y_actual, pred):
@@ -114,6 +126,7 @@ class Trainer():
 		#print self.clf.feature_importances_
 
 	def predict(self, X):
+		print "predicting"
 		self.prediction = self.clf.predict(X)
 
 	def confusion_mat(self):
@@ -140,17 +153,41 @@ class Trainer():
 				print "Testing Scores:"
 				self.predict(self.X_test)
 				self.score(self.y_test, self.prediction)
+	def print_predicted_defaults(self, y, pred):
+		#tpr == predict paid, actually paid rate (ie recall)
+		tpr = np.sum((pred == 1) & (y == 1))*1.0 / np.sum(y == 1)
+		#fpr == predict paid, actually default rate
+		fpr = np.sum((pred == 1) & (y == 0))*1.0 / np.sum(y == 0)
+		#fnr == predict default actually paid rate
+		fnr = np.sum((pred == 0) & (y == 1))*1.0 / np.sum(y == 1)
+		#tnr == predict default actually default rate (ie specificity)
+		tnr = np.sum((pred == 0) & (y == 0))*1.0 / np.sum(y == 0)
+
+		print "tpr - predict_paid_actually_paid: " + str(tpr)
+		print "fpr - predict_paid_actually_default: " + str(fpr)
+		print "fnr - predict_default_actually_paid: " + str(fnr)
+		print "tnr - predict_default_actually_default: " + str(tnr)
+
+	def save_loans_pred_to_default(self):
+		pred_defaults = [self.originalLoanData.iloc[i] for i,val in enumerate(self.prediction) if val==0]
+		print "pickling"
+		f = open('pred_defaults.pickle', 'wb')
+		pickle.dump(pred_defaults, f)
+		f.close()
 
 trainer = Trainer()
-trainer.standardize_samples()
-trainer.scale_samples_to_range()
-trainer.run_pca(50)
-trainer.runSVCGridSearch()
+#trainer.standardize_samples()
+#trainer.scale_samples_to_range()
 
-'''
-n_trees = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+#trainer.run_pca(50)
+
+
+n_trees = [100]
 for n in n_trees:
 	trainer.define_rfc(n_estimators=n)
-	trainer.predict()
-	trainer.score()
-'''
+	trainer.train()
+	trainer.predict(trainer.X_test)
+	trainer.score(trainer.y_test, trainer.prediction)
+	trainer.print_predicted_defaults(trainer.y_test, trainer.prediction)
+trainer.save_loans_pred_to_default()
+
