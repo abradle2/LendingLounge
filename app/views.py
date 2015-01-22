@@ -61,7 +61,7 @@ for i, result in enumerate(query_results):
 				  'collections12MthsExMed':result[58],
 				  'mthsSinceLastMajorDerog':result[60],
 				  'loanAmnt':result[82],
-				  'defaultPeriod': 10})
+				  'pred_default_time':result[86]})
 
 
 @app.route('/')
@@ -74,10 +74,12 @@ def index():
 def get_default_prob():
 	default_prob = []
 	loan_id = []
+	pred_default_time = []
 	for loan in loans:
 		default_prob.append(loan['defaultProb'])
 		loan_id.append(loan['id'])
-	return jsonify(default_prob=default_prob, loan_id=loan_id)
+		pred_default_time.append(loan['pred_default_time'])
+	return jsonify(default_prob=default_prob, loan_id=loan_id, pred_default_time=pred_default_time)
 
 @app.route('/loan')
 def get_loan():

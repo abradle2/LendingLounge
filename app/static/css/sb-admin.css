@@ -218,6 +218,10 @@ ul.alert-dropdown {
     width: 50%;
 }
 
+#hidden {
+    display: none;
+}
+
 .tr-active {
     background-color: blue;
 }

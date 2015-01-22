@@ -130,7 +130,7 @@ sql_query = "SELECT "
 for feat in features_defaults:
 	sql_query += feat + ','
 sql_query = sql_query[:-1]
-sql_query += " FROM completed_loans where term=0;"
+sql_query += " FROM completed_loans where term=0 and issue_year > 2009;"
 
 loanData = sql.read_sql(sql_query, con)
 

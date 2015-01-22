@@ -42,7 +42,7 @@ function draw_default_prob_chart(data) {
             }
         },
         legend: {
-            display: false
+            enabled: false
         },
         plotOptions: {
             scatter: {
@@ -88,7 +88,7 @@ function draw_roi_chart(data) {
                 height: 200
             },
         title: {
-            text: 'Predicted Default Probability',
+            text: 'Predicted Days Until Default',
             x: -20 //center
         },
         xAxis: {
@@ -96,7 +96,7 @@ function draw_roi_chart(data) {
         },
         yAxis: {
             title: {
-                text: 'Probability of Default (%)'
+                text: 'Days Until Predicted Default'
             },
             plotLines: [{
                 value: 0,
@@ -113,7 +113,7 @@ function draw_roi_chart(data) {
             }
         },
         legend: {
-            display: false
+            enabled: false
         },
         plotOptions: {
             scatter: {
@@ -134,7 +134,7 @@ function draw_roi_chart(data) {
                     }
                 },
                 tooltip: {
-                    headerFormat: '<b>Loan {point.x}<br>{point.y}%</b><br>',
+                    headerFormat: '<b>Loan {point.x}<br>{point.y} days</b><br>',
                     pointFormat: ''
                 }
             }
@@ -143,8 +143,9 @@ function draw_roi_chart(data) {
             data: []
         }]
     }
-    $.getJSON("./default_prob", function(json) {        
-        options.series[0].data = json['default_prob'];
+    $.getJSON("./default_prob", function(json) {
+        console.log(json['pred_default_time']);
+        options.series[0].data = json['pred_default_time'];
         options.xAxis.categories = json['index'];
         chart = new Highcharts.Chart(options);
     });
@@ -242,8 +243,21 @@ function tablesorter() {
 };
 
 function reload_loan_detail(loanId) {
+    //show loan details if clicking on a row, hide it if click again
+    //console.log($('#' + loanId).next().attr('id'));
+    if ($('#' + loanId).next().attr('id') == 'tr-loan-detail') {   
+        console.log($('#' + loanId).next().attr('id'));
+        var loan_detail = $('#loan-detail').detach();
+        $('#hidden').append(loan_detail);
+        $('#tr-loan-detail').remove();
+    } else {
+        $('#' + loanId).after('<tr id="tr-loan-detail"><td colspan="5" id="td-loan-detail"></td></tr>');
+        //$('#td-loan-detail').append($('#loan-detail'));
+        $('#td-loan-detail').append($('#loan-detail'));
+    }
     $.getJSON("./loan", {'loanId':loanId}, function(json) {        
         //Update all the loan detail divs
+        $('#loan-borrowerId').text(json['loan']['memberId'])
         $('#loan-acceptD').text(json['loan']['acceptD'])
         $('#loan-installment').text(json['loan']['installment'])
         $('#loan-reviewStatus').text(json['loan']['reviewStatus'])
