@@ -84,12 +84,12 @@
 			                            </thead> 
 			                            <tbody>
 			                            {% for loan in loans %}
-			                            <tr> 
+			                            <tr class="loan-tr" id="{{loan['id']}}"> 
 			                                <td>{{loan['id']}}</td> 
 			                                <td>{{loan['memberId']}}</td> 
 			                                <td>{{loan['grade']}}</td> 
-			                                <td>{{loan['intRate']}}</td> 
-			                                <td>{{loan['loanAmnt']}}</td>
+			                                <td>{{loan['intRate']}}%</td> 
+			                                <td>${{loan['loanAmnt']}}0</td>
 			                                <td>{{loan['defaultProb']}}</td> 
 			                            </tr>
 			                            {% endfor %}
@@ -100,14 +100,14 @@
 			                        		<h3>Borrower</h3>
 			                        		<div class="loan-detail-left">
 				                        		<ul>
-				                        			<li>Loan Submitted:</li>
-				                        			<li>Monthly Payment:</li>
+				                        			<li>Loan Submitted: {{loans[0]['AsOfDate']}}</li>
+				                        			<li>Monthly Payment: ${{loans[0]['installment']}}</li>
 				                        		</ul>
 			                        		</div>
 			                        		<div class="loan-detail-right">
 				                        		<ul>
-				                        			<li>Review Status:</li>
-				                        			<li>Loan #:</li>
+				                        			<li>Review Status: {{loans[0]['reviewStatus']}}</li>
+				                        			<li>Loan #: {{loans[0]['id']}}</li>
 				                        		</ul>
 			                        		</div>
 			                        	</div>
@@ -115,16 +115,16 @@
 			                        		<h3>Borrower Profile</h3>
 			                        		<div class="loan-detail-left">
 				                        		<ul>
-				                        			<li>Gross Income:</li>
-				                        			<li>Home Ownership:</li>
-				                        			<li>Length of Employment:</li>
+				                        			<li>Gross Income: ${{loans[0]['annualInc']}}0</li>
+				                        			<li>Home Ownership: {{loans[0]['homeOwnership']}}</li>
+				                        			<li>Length of Employment: {{loans[0]['empLength']}} years</li>
 				                        		</ul>
 				                        	</div>
 				                        	<div class="loan-detail-right">
 				                        		<ul>
-				                        			<li>Job Title:</li>
-				                        			<li>Location:</li>
-				                        			<li>Debt-to-Income (DTI):</li>
+				                        			<li>Job Title: {{loans[0]['occupation']}}</li>
+				                        			<li>Location: {{loans[0]['addrZip']}}, {{loans[0]['addrState']}}</li>
+				                        			<li>Debt-to-Income (DTI): {{loans[0]['dti']}}</li>
 				                        		</ul>
 				                        	</div>
 			                        	</div>
@@ -132,33 +132,33 @@
 			                        		<h3>Borrower Credit History</h3>
 			                        		<div class="loan-detail-left">
 				                        		<ul>
-				                        			<li>Credit Score Range:</li>
-				                        			<li>Earliest Credit Line:</li>
-				                        			<li>Open Credit Lines:</li>
-				                        			<li>Total Credit Lines:</li>
-				                        			<li>Revolving Card Balance:</li>
-				                        			<li>Revolving Line Utilization:</li>
-				                        			<li>Inquiries in Last 6 Months:</li>
-				                        			<li>Accounts Now Delinquent:</li>
+				                        			<li>Credit Score Range: {{loans[0]['ficoRangeLow']}} - {{loans[0]['ficoRangeHigh']}}</li>
+				                        			<li>Earliest Credit Line: {{loans[0]['earliestCrLine']}}</li>
+				                        			<li>Open Credit Lines: {{loans[0]['openAccts']}}</li>
+				                        			<li>Total Credit Lines: {{loans[0]['totalAcc']}}</li>
+				                        			<li>Revolving Card Balance: ${{loans[0]['revolBal']}}0</li>
+				                        			<li>Revolving Line Utilization: ${{loans[0]['revolUtil']}}0</li>
+				                        			<li>Inquiries in Last 6 Months: {{loans[0]['inqLast6Mths']}}</li>
+				                        			<li>Accounts Now Delinquent: {{loans[0]['accNowDelinq']}}</li>
 				                        		</ul>
 				                        	</div>
 				                        	<div class="loan-detail-right">
 				                        		<ul>
-				                        			<li>Delinquent Amount:</li>
-				                        			<li>Delinquencies (last 2 years):</li>
-				                        			<li>Months Since Last delinquency:</li>
-				                        			<li>Public Records on File:</li>
-				                        			<li>Months Since Last Record:</li>
-				                        			<li>Months Since Last Major Derogatory:</li>
-				                        			<li>Collections Excluding Medical:</li>
-				                        			<li>Space Holder</li>
+				                        			<li>Delinquent Amount: ${{loans[0]['delinqAmnt']}}0</li>
+				                        			<li>Delinquencies (last 2 years): {{loans[0]['delinq2Yrs']}}</li>
+				                        			<li>Months Since Last delinquency: {{loans[0]['mthsSinceLastDelinq']}}</li>
+				                        			<li>Public Records on File: {{loans[0]['pubRec']}}</li>
+				                        			<li>Months Since Last Record: {{loans[0]['mthsSinceLastRecord']}}</li>
+				                        			<li>Months Since Last Major Derogatory: {{loans[0]['mthsSinceLastMajorDerog']}}</li>
+				                        			<li>Collections Excluding Medical: {{loans[0]['collections12MthsExMed']}}</li>
+				                        			<li><br/></li>
 				                        		</ul>
 				                        	</div>
 			                        	</div>
 			                        	<div class="loan-detail" id="loan-detail-loan-description">
 			                        		<h3>Loan Description</h3>
 			                        		<ul>
-			                        			<li>Loan description will be printed here</li>
+			                        			<li>{{loans[0]['description']}}</li>
 			                        		</ul>
 			                        	</div>
 			                        	<div class="loan-detail" id="loan-detail-analysis">

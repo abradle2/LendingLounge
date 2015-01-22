@@ -1,17 +1,11 @@
 $(document).ready(function() {
     tablesorter();
     draw_default_prob_chart([[1,2], [3,3]]);
-    // $.ajax({
-    //   type: "GET",
-    //   url: "./default_prob",
-    //   data: {  }
-    // })
-    //   .done(function( data ) {
-    //     console.log(data)
-
-    //     draw_default_prob_chart(data)
-    //   });
-
+    $('.loan-tr').click(function(){
+        alert($(this).attr('id'));
+        var tr_id = $(this).attr('id')
+        reload_loan_detail(tr_id);
+    });
 });
 
 function draw_default_prob_chart(data) {
@@ -168,5 +162,9 @@ function tablesorter() {
         // *** send messages to console ***
         debug : false
     });
+};
+
+function reload_loan_detail(loanId) {
+
 };
 

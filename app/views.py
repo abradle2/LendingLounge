@@ -41,10 +41,25 @@ for result in query_results:
 				  'investorCount':result[24],
 				  'ilExpD':result[25],
 				  'initialListStatus':result[26],
-				  'dti': result[32],
 				  'occupation': result[27],
+				  'accNowDelinq':result[28],
+				  'dti': result[32],
+				  'delinq2Yrs':result[33],
+				  'delinqAmnt':result[34],
+				  'earliestCrLine':result[35],
+				  'ficoRangeLow':result[36],
+				  'ficoRangeHigh':result[37],
+				  'inqLast6Mths':result[38],
+				  'mthsSinceLastDelinq':result[39],
+				  'mthsSinceLastRecord':result[40],
 				  'openAccts': result[45],
-				  'revolBl': result[48],
+				  'pubRec':result[46],
+				  'revolBal': result[48],
+				  'revolUtil': result[49],
+				  'totalAcc':result[51],
+				  'collections12MthsExMed':result[58],
+				  'mthsSinceLastMajorDerog':result[60],
+				  'loanAmnt':result[82],
 				  'defaultPeriod': 10})
 
 
@@ -62,3 +77,11 @@ def get_default_prob():
 		default_prob.append(loan['defaultProb'])
 		loan_id.append(loan['id'])
 	return jsonify(default_prob=default_prob, loan_id=loan_id)
+
+@app.route('/loan')
+def get_loan():
+	loanId = request.args.get('loanId', 0, type=int)
+	for loan in loans:
+		if loan['id'] == loanId:
+			return jsonify(loan=loan)
+	return jsonify()

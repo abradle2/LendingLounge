@@ -118,7 +118,6 @@ class Trainer():
 				self.score(self.X_train, self.y_train)
 				print "Testing Scores:"
 				self.predict(self.X_test)
-				print self.y_test.shape, self.prediction.shape
 				self.score(self.X_test, self.y_test)
 
 trainer = Trainer()
