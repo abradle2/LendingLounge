@@ -95,8 +95,8 @@ class Trainer():
 		self.prediction = self.regr.predict(X)
 
 	def score(self, X, y):
-		self.score = self.regr.score(X, y)
-		print "R2 Score: ", self.score
+		score_val = self.regr.score(X, y)
+		print "R2 Score: ", score_val
 
 	def plot_prediction(self):
 		plt.scatter(self.prediction, self.y_test)
@@ -104,7 +104,7 @@ class Trainer():
 		plt.ylabel('y_test')
 		plt.show()
 
-	def runSVCGridSearch(self):
+	def runSVRGridSearch(self):
 		C_vals = [0.01, 0.1, 1, 10, 100]
 		gamma_vals = [1E-2, 1E-1, 1, 1E1, 1E2, 1E3, 1E4]
 
@@ -115,10 +115,11 @@ class Trainer():
 				self.train()
 				print "Training Scores:"
 				self.predict(self.X_train)
-				self.score(self.y_train, self.prediction)
+				self.score(self.X_train, self.y_train)
 				print "Testing Scores:"
 				self.predict(self.X_test)
-				self.score(self.y_test, self.prediction)
+				print self.y_test.shape, self.prediction.shape
+				self.score(self.X_test, self.y_test)
 
 trainer = Trainer()
 trainer.drop_columns()
@@ -126,4 +127,4 @@ trainer.drop_prepaid_loans()
 trainer.define_features_targets()
 trainer.preprocess()
 trainer.define_SVR()
-trainer.runSVCGridSearch()
+trainer.runSVRGridSearch()
