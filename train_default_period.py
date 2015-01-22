@@ -75,7 +75,7 @@ class Trainer():
 		(self.X_train, self.X_test) = dm.scale_samples_to_range(self.X_train, 
 																self.X_test)
 
-	def define_rfc(self, n_estimators=10):
+	def define_rf(self, n_estimators=10):
 		self.regr = RandomForestRegressor(n_estimators=n_estimators)
 		print self.regr.get_params()
 
@@ -120,10 +120,23 @@ class Trainer():
 				self.predict(self.X_test)
 				self.score(self.X_test, self.y_test)
 
+	def pickle_regr(self):
+		print "pickling algorithm"
+		f = open('./pickles/rf_20150122.pickle', 'wb')
+		pickle.dump(self.regr, f)
+		f.close()
+
 trainer = Trainer()
 trainer.drop_columns()
 trainer.drop_prepaid_loans()
 trainer.define_features_targets()
 trainer.preprocess()
-trainer.define_SVR()
-trainer.runSVRGridSearch()
+trainer.define_rf(n_estimators=100)
+trainer.train()
+print "Training Scores"
+trainer.predict(trainer.X_train)
+trainer.score(trainer.X_train, trainer.y_train)
+print "Test Scores"
+trainer.predict(trainer.X_test)
+trainer.score(trainer.X_test, trainer.y_test)
+trainer.pickle_regr()

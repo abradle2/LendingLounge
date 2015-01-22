@@ -14,8 +14,9 @@ with db:
 		cur.execute("SELECT * from listed_loans LIMIT 10;")
 		query_results = cur.fetchall()
 loans = []
-for result in query_results:
-	loans.append({'AsOfDate':result[0],
+for i, result in enumerate(query_results):
+	loans.append({'index': i,
+				  'asOfDate':result[0],
 				  'id':result[1], 
 				  'memberId': result[2],
 				  'term':result[3],

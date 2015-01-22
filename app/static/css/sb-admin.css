@@ -183,13 +183,12 @@ ul.alert-dropdown {
 /* Custom CSS Added by Aaron */
 
 #loans-info {
-    width: 60%;
+    width: 100%;
 }
 
-#graph-div {
-    width: 40%;
+#graph-div, #graph-div-2 {
+    width: 50%;
 }
-
 
 .single-loan li {
     list-style-type:none
@@ -202,6 +201,7 @@ ul.alert-dropdown {
 
 .loan-detail li {
     list-style-type: none
+    width: 100%;
 }
 
 .loan-detail h3 {
@@ -216,4 +216,8 @@ ul.alert-dropdown {
 .loan-detail-right {
     float: left;
     width: 50%;
+}
+
+.tr-active {
+    background-color: blue;
 }

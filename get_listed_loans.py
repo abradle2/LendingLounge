@@ -20,10 +20,11 @@ resp = urllib2.urlopen(req)
 loans = resp.read()
 json_data = json.loads(loans)
 print json_data['loans'][0]['addrState']
+s = mysql.execute("truncate table listed_loans;")
 
 for loan in json_data['loans']:
-	cols = ''
-	vals = ''
+	cols = 'asOfDate,'
+	vals = "'" + json_data['asOfDate'] + "',"
 	for key, val in loan.iteritems():
 		#deal with renaming a few columns:
 		if key == "desc":

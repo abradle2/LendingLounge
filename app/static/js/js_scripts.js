@@ -1,9 +1,9 @@
 $(document).ready(function() {
     tablesorter();
     draw_default_prob_chart([[1,2], [3,3]]);
+    draw_roi_chart([0,0], [1,1]);
     $('.loan-tr').click(function(){
-        alert($(this).attr('id'));
-        var tr_id = $(this).attr('id')
+        var tr_id = $(this).attr('id');
         reload_loan_detail(tr_id);
     });
 });
@@ -13,7 +13,8 @@ function draw_default_prob_chart(data) {
     var options = {
         chart: {
                 renderTo: 'default-prob-chart',
-                type: 'scatter'
+                type: 'scatter',
+                height: 200
             },
         title: {
             text: 'Predicted Default Probability',
@@ -35,7 +36,13 @@ function draw_default_prob_chart(data) {
         xAxis: {
             title: {
                 text: 'Loan Number'
+            },
+            labels: {
+                enabled: false
             }
+        },
+        legend: {
+            display: false
         },
         plotOptions: {
             scatter: {
@@ -62,17 +69,87 @@ function draw_default_prob_chart(data) {
             }
         },
         series: [{
-            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
+            data: []
         }]
     }
-    $.getJSON("./default_prob", function(json) {
-        console.log(json['loan_id'])
-        console.log(json['default_prob'])
+    $.getJSON("./default_prob", function(json) {        
         options.series[0].data = json['default_prob'];
-        options.xAxis.categories = json['loan_id'];
+        options.xAxis.categories = json['index'];
         chart = new Highcharts.Chart(options);
     });
 };
+
+function draw_roi_chart(data) {
+
+    var options = {
+        chart: {
+                renderTo: 'roi-chart',
+                type: 'scatter',
+                height: 200
+            },
+        title: {
+            text: 'Predicted Default Probability',
+            x: -20 //center
+        },
+        xAxis: {
+            categories: []
+        },
+        yAxis: {
+            title: {
+                text: 'Probability of Default (%)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        xAxis: {
+            title: {
+                text: 'Loan Number'
+            },
+            labels: {
+                enabled: false
+            }
+        },
+        legend: {
+            display: false
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 5,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>Loan {point.x}<br>{point.y}%</b><br>',
+                    pointFormat: ''
+                }
+            }
+        },
+        series: [{
+            data: []
+        }]
+    }
+    $.getJSON("./default_prob", function(json) {        
+        options.series[0].data = json['default_prob'];
+        options.xAxis.categories = json['index'];
+        chart = new Highcharts.Chart(options);
+    });
+};
+
 
 function tablesorter() {
     $('.tablesorter').tablesorter({
@@ -165,6 +242,34 @@ function tablesorter() {
 };
 
 function reload_loan_detail(loanId) {
-
+    $.getJSON("./loan", {'loanId':loanId}, function(json) {        
+        //Update all the loan detail divs
+        $('#loan-acceptD').text(json['loan']['acceptD'])
+        $('#loan-installment').text(json['loan']['installment'])
+        $('#loan-reviewStatus').text(json['loan']['reviewStatus'])
+        $('#loan-id').text(json['loan']['id'])
+        $('#loan-dti').text(json['loan']['dti'])
+        $('#loan-annualInc').text(json['loan']['annualInc'])
+        $('#loan-homeOwnership').text(json['loan']['homeOwnership'])
+        $('#loan-empLength').text(json['loan']['empLength'])
+        $('#loan-occupation').text(json['loan']['occupation'])
+        $('#loan-location').text(json['loan']['addrZip'] + ', ' + json['loan']['addrState'])
+        $('#loan-ficoRange').text(json['loan']['ficoRangeLow'] + ' - ' + json['loan']['ficoRangeHigh'])
+        $('#loan-earliestCrLine').text(json['loan']['earliestCrLine'])
+        $('#loan-openAccts').text(json['loan']['openAccts'])
+        $('#loan-totalAcc').text(json['loan']['totalAcc'])
+        $('#loan-revolBal').text(json['loan']['revolBal'])
+        $('#loan-revolUtil').text(json['loan']['revolUtil'])
+        $('#loan-inqLast6Mths').text(json['loan']['inqLast6Mths'])
+        $('#loan-accNowDelinq').text(json['loan']['accNowDelinq'])
+        $('#loan-delinqAmnt').text(json['loan']['delinqAmnt'])
+        $('#loan-delinq2Yrs').text(json['loan']['delinq2Yrs'])
+        $('#loan-mthsSinceLastDelinq').text(json['loan']['mthsSinceLastDelinq'])
+        $('#loan-pubRec').text(json['loan']['pubRec'])
+        $('#loan-mthsSinceLastRecord').text(json['loan']['mthsSinceLastRecord'])
+        $('#loan-mthsSinceLastDerog').text(json['loan']['mthsSinceLastDerog'])
+        $('#loan-collections12MthsExMed').text(json['loan']['collections12MthsExMed'])
+        $('#loan-description').text(json['loan']['description'])
+    });
 };
 
