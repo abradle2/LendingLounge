@@ -92,7 +92,7 @@ loanData['is_inc_v'] = [1 if x == "Source Verified" else x for x in loanData['is
 loanData['is_inc_v'] = [2 if x == "Verified" else x for x in loanData['is_inc_v']]
 loanData['is_inc_v'] = [0 if x == "Not Verified" else x for x in loanData['is_inc_v']]
 
-##Deal with datetimes and create days_active
+##Deal with datetimes and create days_to_zero_dollars
 loanData = loanData[pd.notnull(loanData['last_pymnt_d'] )]
 loanData.index = range(len(loanData))
 print loanData['last_pymnt_d'].unique()
@@ -100,7 +100,7 @@ print loanData['last_pymnt_d'].unique()
 loanData['issue_d'] = [datetime.strptime(str(x), '%b-%Y') for x in loanData['issue_d']]
 loanData['last_pymnt_d'] = [datetime.strptime(str(x), '%b-%Y') for x in loanData['last_pymnt_d']]
 days_active = [(loanData['last_pymnt_d'][i] - loanData['issue_d'][i]).days for i in range(len(loanData))]
-loanData['days_active'] = days_active
+loanData['days_to_zero_dollars'] = days_active
 
 
 ##issue_month and issue_year

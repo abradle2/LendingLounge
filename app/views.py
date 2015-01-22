@@ -43,7 +43,6 @@ for result in query_results:
 				  'initialListStatus':result[26],
 				  'dti': result[32],
 				  'occupation': result[27],
-				  
 				  'openAccts': result[45],
 				  'revolBl': result[48],
 				  'defaultPeriod': 10})
@@ -53,7 +52,7 @@ for result in query_results:
 @app.route('/index')
 def index():
 	return render_template("index.html",
-				loans=loans, query_results=query_results[0][1])
+				loans=loans)
 #AJAX functions
 @app.route('/default_prob')
 def get_default_prob():

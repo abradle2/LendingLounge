@@ -1,0 +1,193 @@
+Loading data.pickle
+Loans in training set:  49618
+Defaults in training set:  9355
+Loans in testing set:  49619
+Defaults in testing set:  9170
+Reduced data down to  30  dimensions: 
+Transforming test data ...
+
+
+ C:  0.001   gamma:  0.0001
+Using a Support Vector Machine Classifier ...
+{'kernel': 'rbf', 'C': 0.001, 'verbose': True, 'probability': False, 'degree': 3, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 0.0001, 'class_weight': 'auto'}
+[LibSVM].................................................
+Warning: using -h 0 may be faster
+*
+optimization finished, #iter = 49617
+obj = -30.362668, rho = -0.998879
+nSV = 49618, nBSV = 40395
+Total nSV = 49618
+Training Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.19      1.00      0.32      9355
+        1.0       0.00      0.00      0.00     40263
+
+avg / total       0.04      0.19      0.06     49618
+
+predict 0:  49618
+predict 1:  0
+actual 0:  9355
+actual 0:  40263
+Testing Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.18      1.00      0.31      9170
+        1.0       0.00      0.00      0.00     40449
+
+avg / total       0.03      0.18      0.06     49619
+
+predict 0:  49619
+predict 1:  0
+actual 0:  9170
+actual 0:  40449
+
+
+ C:  0.001   gamma:  0.001
+Using a Support Vector Machine Classifier ...
+{'kernel': 'rbf', 'C': 0.001, 'verbose': True, 'probability': False, 'degree': 3, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 0.001, 'class_weight': 'auto'}
+[LibSVM].................................................
+Warning: using -h 0 may be faster
+*
+optimization finished, #iter = 49617
+obj = -30.343463, rho = -0.988871
+nSV = 49618, nBSV = 40405
+Total nSV = 49618
+Training Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.19      1.00      0.32      9355
+        1.0       0.00      0.00      0.00     40263
+
+avg / total       0.04      0.19      0.06     49618
+
+predict 0:  49618
+predict 1:  0
+actual 0:  9355
+actual 0:  40263
+Testing Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.18      1.00      0.31      9170
+        1.0       0.00      0.00      0.00     40449
+
+avg / total       0.03      0.18      0.06     49619
+
+predict 0:  49619
+predict 1:  0
+actual 0:  9170
+actual 0:  40449
+
+
+ C:  0.001   gamma:  0.01
+Using a Support Vector Machine Classifier ...
+{'kernel': 'rbf', 'C': 0.001, 'verbose': True, 'probability': False, 'degree': 3, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 0.01, 'class_weight': 'auto'}
+[LibSVM].................................................
+Warning: using -h 0 may be faster
+*
+optimization finished, #iter = 49617
+obj = -30.163990, rho = -0.896262
+nSV = 49618, nBSV = 40419
+Total nSV = 49618
+Training Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.19      1.00      0.32      9355
+        1.0       0.00      0.00      0.00     40263
+
+avg / total       0.04      0.19      0.06     49618
+
+predict 0:  49618
+predict 1:  0
+actual 0:  9355
+actual 0:  40263
+Testing Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.18      1.00      0.31      9170
+        1.0       0.00      0.00      0.00     40449
+
+avg / total       0.03      0.18      0.06     49619
+
+predict 0:  49619
+predict 1:  0
+actual 0:  9170
+actual 0:  40449
+
+
+ C:  0.001   gamma:  0.1
+Using a Support Vector Machine Classifier ...
+{'kernel': 'rbf', 'C': 0.001, 'verbose': True, 'probability': False, 'degree': 3, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 0.1, 'class_weight': 'auto'}
+[LibSVM].................................................
+Warning: using -h 0 may be faster
+*
+optimization finished, #iter = 49618
+obj = -29.258146, rho = -0.431306
+nSV = 49618, nBSV = 40689
+Total nSV = 49618
+Training Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.20      0.97      0.34      9355
+        1.0       0.94      0.12      0.22     40263
+
+avg / total       0.80      0.28      0.24     49618
+
+predict 0:  44407
+predict 1:  5211
+actual 0:  9355
+actual 0:  40263
+Testing Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.20      0.96      0.33      9170
+        1.0       0.94      0.12      0.22     40449
+
+avg / total       0.80      0.28      0.24     49619
+
+predict 0:  44244
+predict 1:  5375
+actual 0:  9170
+actual 0:  40449
+
+
+ C:  0.001   gamma:  1
+Using a Support Vector Machine Classifier ...
+{'kernel': 'rbf', 'C': 0.001, 'verbose': True, 'probability': False, 'degree': 3, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 1, 'class_weight': 'auto'}
+[LibSVM].................................................
+Warning: using -h 0 may be faster
+*
+optimization finished, #iter = 49617
+obj = -30.203811, rho = -0.888655
+nSV = 49618, nBSV = 41125
+Total nSV = 49618
+Training Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.19      1.00      0.32      9355
+        1.0       0.00      0.00      0.00     40263
+
+avg / total       0.04      0.19      0.06     49618
+
+predict 0:  49618
+predict 1:  0
+actual 0:  9355
+actual 0:  40263
+Testing Scores:
+             precision    recall  f1-score   support
+
+        0.0       0.18      1.00      0.31      9170
+        1.0       0.00      0.00      0.00     40449
+
+avg / total       0.03      0.18      0.06     49619
+
+predict 0:  49619
+predict 1:  0
+actual 0:  9170
+actual 0:  40449
+
+
+ C:  0.001   gamma:  10.0
+Using a Support Vector Machine Classifier ...
+{'kernel': 'rbf', 'C': 0.001, 'verbose': True, 'probability': False, 'degree': 3, 'shrinking': True, 'max_iter': -1, 'random_state': None, 'tol': 0.01, 'cache_size': 200, 'coef0': 0.0, 'gamma': 10.0, 'class_weight': 'auto'}
+[LibSVM].......................
