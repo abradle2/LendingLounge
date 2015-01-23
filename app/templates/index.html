@@ -5,7 +5,7 @@
         <div class="panel panel-default">
             
             <div class="panel-body">
-                <div id="default-prob-chart"> Hello </div>
+                <div id="default-prob-chart"></div>
             </div>
         </div>
     </div>
@@ -13,7 +13,7 @@
         <div class="panel panel-default">
             
             <div class="panel-body">
-                <div id="roi-chart"> Hello </div>
+                <div id="roi-chart"></div>
             </div>
         </div>
     </div>
@@ -35,7 +35,8 @@
                             <th>Grade</th> 
                             <th>Interest Rate</th> 
                             <th>Amount</th> 
-                            <th>Default Prob.</th>
+                            <th>Probability of Default</th>
+                            <th>Expected Days to Default</th>
                         </tr> 
                         </thead> 
                         <tbody>
@@ -45,7 +46,8 @@
                             <td>{{loan['grade']}}</td> 
                             <td>{{loan['intRate']}}%</td> 
                             <td>${{loan['loanAmnt']}}0</td>
-                            <td>{{loan['defaultProb']}}</td> 
+                            <td>{{loan['pred_default']}}</td>
+                            <td>{{loan['pred_default_time']}}</td> 
                         </tr>
                         {% endfor %}
                         </tbody> 
@@ -124,7 +126,7 @@
                         </div>
                     </div> <!-- /.hidden -->
                 </div>
-                
+                <img id="needle" width="100" src="../static/images/sewing_needle.png" />    
             </div>
         </div>
     </div>

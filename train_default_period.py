@@ -12,6 +12,7 @@ from datetime import datetime
 from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor 
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVR
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
@@ -42,7 +43,8 @@ class Trainer():
 											'IDAHO',
 											'ME',
 											'NE',
-											'other_housing'], 1)
+											'other_housing',
+											'issue_year'], 1)
 
 	def drop_prepaid_loans(self):
 		indices_to_drop = []
@@ -53,14 +55,16 @@ class Trainer():
 		print "Number of prepaid loans: ", len(indices_to_drop)
 		print "Number of loans after dropping prepaids: ", len(self.loanData)
 
-	def define_features_targets(self):
+	def define_features_targets(self, kind="regression"):
 		self.features = self.loanData.drop(['loan_status', 
 											'days_to_zero_dollars'], 1)
-		print "features:" 
-		for col in self.features.columns:
-			print col
+	
 		self.features = self.features.values
-		self.targets = self.loanData['days_to_zero_dollars'].values
+		#choose different target variables for regression vs classification
+		if kind == "regression":
+			self.targets = self.loanData['days_to_zero_dollars'].values
+		elif kind == "classification":
+			self.targets = self.loanData['loan_status'].values
 
 	def preprocess(self):
 		(self.X_train, 
@@ -75,8 +79,8 @@ class Trainer():
 		(self.X_train, self.X_test) = dm.scale_samples_to_range(self.X_train, 
 																self.X_test)
 
-	def define_rf(self, n_estimators=10):
-		self.regr = RandomForestRegressor(n_estimators=n_estimators)
+	def define_rfr(self, n_estimators=10):
+		self.regr = RandomForestRegressor(n_estimators=n_estimators, oob_score=True)
 		print self.regr.get_params()
 
 	def define_linear_regressor(self):
@@ -87,16 +91,38 @@ class Trainer():
 		self.regr = SVR(C=C, gamma=gamma, verbose=3)
 		print self.regr.get_params()
 
-	def train(self):
+	def define_rfc(self, n_estimators=10):
+		self.clf = RandomForestClassifier(n_estimators=n_estimators, oob_score=True)
+		print self.clf.get_params()
+
+	def train(self, kind="regression"):
 		print "Fitting training data"
-		self.regr.fit(self.X_train, self.y_train)
+		if kind == "regression":
+			self.regr.fit(self.X_train, self.y_train)
+		elif kind == "classification":
+			self.clf.fit(self.X_train, self.y_train)
 
-	def predict(self, X):
-		self.prediction = self.regr.predict(X)
+	def predict(self, X, kind="regression"):
+		if kind == "regression":
+			self.prediction = self.regr.predict(X)
+		elif kind == "classification":
+			self.prediction = self.clf.predict(X)
 
-	def score(self, X, y):
-		score_val = self.regr.score(X, y)
-		print "R2 Score: ", score_val
+	def score(self, X, y, kind="regression"):
+		if kind == "regression":
+			score_val = self.regr.score(X, y)
+			print "R2 Score: ", score_val
+		elif kind == "classification":
+			score_val = self.clf.score(X, y)
+			print "Accuracy: ", score_val
+			print classification_report(y, self.prediction)
+
+	def run_pca(self, n_components=20):
+		self.pca = PCA(n_components=n_components)
+		self.X_train = self.pca.fit_transform(self.X_train)
+		print "Reduced data down to ", self.pca.n_components_, " dimensions: "
+		print "Transforming test data ..."
+		self.X_test = self.pca.transform(self.X_test)
 
 	def plot_prediction(self):
 		plt.scatter(self.prediction, self.y_test)
@@ -120,18 +146,26 @@ class Trainer():
 				self.predict(self.X_test)
 				self.score(self.X_test, self.y_test)
 
-	def pickle_regr(self):
+	def pickle_algo(self, kind="regression"):
 		print "pickling algorithm"
-		f = open('./pickles/rf_20150122.pickle', 'wb')
-		pickle.dump(self.regr, f)
-		f.close()
+		if kind == "regression":
+			f = open('./pickles/rfr_20150123.pickle', 'wb')
+			pickle.dump(self.regr, f)
+			f.close()
+		elif kind == "classification":
+			f = open('./pickles/rfc_20150123.pickle', 'wb')
+			pickle.dump(self.clf, f)
+			f.close()
 
+
+
+#Run regression
 trainer = Trainer()
 trainer.drop_columns()
 trainer.drop_prepaid_loans()
 trainer.define_features_targets()
 trainer.preprocess()
-trainer.define_rf(n_estimators=100)
+trainer.define_rfr(n_estimators=100)
 trainer.train()
 print "Training Scores"
 trainer.predict(trainer.X_train)
@@ -139,4 +173,33 @@ trainer.score(trainer.X_train, trainer.y_train)
 print "Test Scores"
 trainer.predict(trainer.X_test)
 trainer.score(trainer.X_test, trainer.y_test)
-trainer.pickle_regr()
+print "Feature Importances"
+feature_importances = trainer.regr.feature_importances_
+for i, f in enumerate(feature_importances):
+	print trainer.loanData.drop(['loan_status'], 1).columns[i], f
+print "oob score"
+print trainer.regr.oob_score_
+trainer.pickle_algo(kind="regression")
+
+
+#Run Clasification
+trainer = Trainer()
+trainer.drop_columns()
+trainer.drop_prepaid_loans()
+trainer.define_features_targets(kind="classification")
+trainer.preprocess()
+trainer.define_rfc(n_estimators=100)
+trainer.train(kind="classification")
+print "Training Scores"
+trainer.predict(trainer.X_train, kind="classification")
+trainer.score(trainer.X_train, trainer.y_train, kind="classification")
+print "Test Scores"
+trainer.predict(trainer.X_test, kind="classification")
+trainer.score(trainer.X_test, trainer.y_test, kind="classification")
+print "Feature Importances"
+feature_importances = trainer.clf.feature_importances_
+for i, f in enumerate(feature_importances):
+	print trainer.loanData.drop(['loan_status'], 1).columns[i], f
+print "oob score"
+print trainer.clf.oob_score_
+trainer.pickle_algo(kind="classification")

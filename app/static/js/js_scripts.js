@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    move_needle();
     tablesorter();
     draw_default_prob_chart([[1,2], [3,3]]);
     draw_roi_chart([0,0], [1,1]);
@@ -6,10 +7,16 @@ $(document).ready(function() {
         var tr_id = $(this).attr('id');
         reload_loan_detail(tr_id);
     });
+    $('.loan-tr')
+        .mouseenter(function() {
+             $(this).children().css('background-color', '#8dbdd8');
+    })
+      .mouseleave(function() {
+             $(this).children().css('background-color', 'white');
+    });
 });
 
 function draw_default_prob_chart(data) {
-
     var options = {
         chart: {
                 renderTo: 'default-prob-chart',
@@ -250,10 +257,12 @@ function reload_loan_detail(loanId) {
         var loan_detail = $('#loan-detail').detach();
         $('#hidden').append(loan_detail);
         $('#tr-loan-detail').remove();
+        $('#' + loanId).children().css('background-color', 'white');
     } else {
-        $('#' + loanId).after('<tr id="tr-loan-detail"><td colspan="5" id="td-loan-detail"></td></tr>');
-        //$('#td-loan-detail').append($('#loan-detail'));
+        $('#' + loanId).after('<tr id="tr-loan-detail"><td colspan="6" id="td-loan-detail"></td></tr>');
         $('#td-loan-detail').append($('#loan-detail'));
+        $('li').css('list-style', 'none');
+        
     }
     $.getJSON("./loan", {'loanId':loanId}, function(json) {        
         //Update all the loan detail divs
@@ -287,3 +296,16 @@ function reload_loan_detail(loanId) {
     });
 };
 
+function move_needle() {
+    var pos = $('#needle').position();
+    var delta_x = 10;
+    $('#needle').css("position", "relative")
+    if(pos.left < 1000) {
+        var x = String(pos.left + delta_x) + "px";
+        $('#needle').css("left", x);
+    }
+    else {
+        $('#needle').css("left", 0);
+    }
+    setTimeout('move_needle()',100);
+}

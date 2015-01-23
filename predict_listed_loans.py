@@ -43,7 +43,11 @@ con = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='i
 sql_query = "SELECT * FROM listed_loans;"
 loanData = sql.read_sql(sql_query, con)
 
-f = open('./pickles/rf_20150122.pickle', 'rb')
+f = open('./pickles/rfr_20150123.pickle', 'rb')
+regr = pickle.load(f)
+f.close()
+
+f = open('./pickles/rfc_20150123.pickle', 'rb')
 clf = pickle.load(f)
 f.close()
 
@@ -342,7 +346,7 @@ listedLoanData = loanData[['loanAmount',
 'OWN',
 'RENT',
 'issue_month',
-'issue_year',
+#'issue_year',
 'car',
 'credit_card',
 'debt_consolidation',
@@ -411,16 +415,27 @@ listedLoanData = loanData[['loanAmount',
 'install_frac_of_monthly_inc',
 'implied_risk']]
 
+#Only keep 36 month terms:
+listedLoanData = listedLoanData[listedLoanData['term']==0]
 X_test = listedLoanData.values
 
+X_test = listedLoanData.astype(float).values
 (X_test, _) = dm.standardize_samples(X_test, X_test)
 (X_test, _) = dm.scale_samples_to_range(X_test, X_test)
 
-prediction = clf.predict(X_test)
+prediction_clf = clf.predict_proba(X_test)
+print prediction_clf[0]
 
-for i, val in enumerate(prediction):
-	sql_query = "UPDATE listed_loans SET pred_default_time='%s' WHERE id='%s';" %(int(val), loanData['id'][i])
-    cur.execute(sql_query)
-cur.close()
+prediction_regr = regr.predict(X_test)
 
 ##Upload predicted default times to database
+for i, val in enumerate(prediction_regr):
+  sql_query = "UPDATE listed_loans SET pred_default_time='%s' WHERE id='%s';" %(int(val), loanData['id'][i])
+  cur.execute(sql_query)
+for i, val in enumerate(prediction_clf):
+  sql_query = "UPDATE listed_loans SET pred_default='%s' WHERE id='%s';" %(val[0], loanData['id'][i])
+  cur.execute(sql_query)
+  sql_query = "UPDATE listed_loans SET pred_paid='%s' WHERE id='%s';" %(val[1], loanData['id'][i])
+  cur.execute(sql_query)
+cur.close()
+

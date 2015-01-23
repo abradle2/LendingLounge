@@ -1,0 +1,27 @@
+issue_year 0.676731951864
+issue_month 0.0195764777924
+annual_inc 0.0187800612298
+revol_util 0.0182183194976
+dti 0.017895687702
+revol_bal 0.0173282070627
+install_frac_of_monthly_inc 0.0170692677865
+zip_code 0.0153793877824
+total_acc 0.0140723968248
+installment 0.0113393272971
+unemp_rate_3mths 0.0102682332009
+
+loan_amnt 0.00689057771866
+
+
+
+
+
+
+
+
+
+yrs_since_first_cr_line 0.0131646684879
+desc_length 0.0108862570444
+
+
+implied_risk 0.0163967740352
