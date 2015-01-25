@@ -67,7 +67,8 @@ for i, result in enumerate(query_results):
 					  'loanAmnt':result[82],
 					  'pred_default_time':result[86],
 					  'pred_default':result[87],
-					  'pred_paid':result[88]})
+					  'pred_paid':result[88],
+					  'pred_roi':result[89]})
 for i, loan in enumerate(loans):
 	if loan['pred_paid'] > 0.5:
 		loans[i]['pred_default_time'] = '-'
@@ -83,6 +84,8 @@ def index():
 def presentation():
 	return render_template("presentation.html")
 #AJAX functions
+
+#return all default probabilities
 @app.route('/default_prob')
 def get_default_prob():
 	default_prob = []
@@ -92,8 +95,11 @@ def get_default_prob():
 		default_prob.append(loan['pred_default'])
 		loan_id.append(loan['id'])
 		pred_default_time.append(loan['pred_default_time'])
-	return jsonify(default_prob=default_prob, loan_id=loan_id, pred_default_time=pred_default_time)
+	return jsonify(default_prob=default_prob, 
+				   loan_id=loan_id, 
+				   pred_default_time=pred_default_time)
 
+#return fields for one loan
 @app.route('/loan')
 def get_loan():
 	loanId = request.args.get('loanId', 0, type=int)
@@ -101,3 +107,20 @@ def get_loan():
 		if loan['id'] == loanId:
 			return jsonify(loan=loan)
 	return jsonify()
+
+@app.route('/loans-filtered')
+def get_loans_filtered():
+	#grade = request.args.get('grade', 0, type=int)
+	int_rate_min = request.args.get('int_rate_min', 0, type=float)
+	int_rate_max = request.args.get('int_rate_max', 0, type=float)
+	est_default_min = request.args.get('est_default_min', 0, type=float)
+	est_default_max = request.args.get('est_default_max', 0, type=float)
+	est_default_min, est_default_max = est_default_min/100.0, est_default_max/100.0
+	#array to return
+	loans_to_show = []
+	for loan in loans:
+		if loan['intRate'] >= int_rate_min and loan['intRate'] <= int_rate_max:
+			if loan['pred_default'] >= est_default_min and loan['pred_default'] <= est_default_max:
+				loans_to_show.append(loan)
+	return jsonify(loans = loans_to_show)
+

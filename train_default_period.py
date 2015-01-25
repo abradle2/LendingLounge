@@ -72,7 +72,7 @@ class Trainer():
 		 self.y_train, 
 		 self.y_test) = dm.split_train_test(features=self.features, 
 		 									targets=self.targets, 
-		 									test_size=0.1)
+		 									test_size=0.01)
 		(self.X_train, self.X_test) = dm.standardize_samples(self.X_train, 
 														  self.X_test)
 		
@@ -146,60 +146,64 @@ class Trainer():
 				self.predict(self.X_test)
 				self.score(self.X_test, self.y_test)
 
-	def pickle_algo(self, kind="regression"):
+	def pickle_algo(self, fileName, kind="regression"):
 		print "pickling algorithm"
 		if kind == "regression":
-			f = open('./pickles/rfr_20150123.pickle', 'wb')
+			f = open(fileName, 'wb')
 			pickle.dump(self.regr, f)
 			f.close()
 		elif kind == "classification":
-			f = open('./pickles/rfc_20150123.pickle', 'wb')
+			f = open(fileName, 'wb')
 			pickle.dump(self.clf, f)
 			f.close()
 
 
+for iteration in range(10):
+	#Run regression
+	trainer = Trainer()
+	trainer.drop_columns()
+	trainer.drop_prepaid_loans()
+	trainer.define_features_targets()
+	trainer.preprocess()
+	trainer.define_rfr(n_estimators=100)
+	trainer.train()
+	print "Training Scores"
+	trainer.predict(trainer.X_train)
+	trainer.score(trainer.X_train, trainer.y_train)
+	print "Test Scores"
+	trainer.predict(trainer.X_test)
+	trainer.score(trainer.X_test, trainer.y_test)
+	print "Feature Importances"
+	feature_importances = trainer.regr.feature_importances_
+	for i, f in enumerate(feature_importances):
+		print trainer.loanData.drop(['loan_status'], 1).columns[i], f
+	print "oob score"
+	print trainer.regr.oob_score_
+	fileName = './pickles/rfr_%s.pickle' %iteration
+	trainer.pickle_algo(fileName=fileName, kind="regression")
 
-#Run regression
-trainer = Trainer()
-trainer.drop_columns()
-trainer.drop_prepaid_loans()
-trainer.define_features_targets()
-trainer.preprocess()
-trainer.define_rfr(n_estimators=100)
-trainer.train()
-print "Training Scores"
-trainer.predict(trainer.X_train)
-trainer.score(trainer.X_train, trainer.y_train)
-print "Test Scores"
-trainer.predict(trainer.X_test)
-trainer.score(trainer.X_test, trainer.y_test)
-print "Feature Importances"
-feature_importances = trainer.regr.feature_importances_
-for i, f in enumerate(feature_importances):
-	print trainer.loanData.drop(['loan_status'], 1).columns[i], f
-print "oob score"
-print trainer.regr.oob_score_
-trainer.pickle_algo(kind="regression")
+
+	#Run Clasification
+	trainer = Trainer()
+	trainer.drop_columns()
+	trainer.drop_prepaid_loans()
+	trainer.define_features_targets(kind="classification")
+	trainer.preprocess()
+	trainer.define_rfc(n_estimators=100)
+	trainer.train(kind="classification")
+	print "Training Scores"
+	trainer.predict(trainer.X_train, kind="classification")
+	trainer.score(trainer.X_train, trainer.y_train, kind="classification")
+	print "Test Scores"
+	trainer.predict(trainer.X_test, kind="classification")
+	trainer.score(trainer.X_test, trainer.y_test, kind="classification")
+	print "Feature Importances"
+	feature_importances = trainer.clf.feature_importances_
+	for i, f in enumerate(feature_importances):
+		print trainer.loanData.drop(['loan_status'], 1).columns[i], f
+	print "oob score"
+	print trainer.clf.oob_score_
+	fileName = './pickles/rfc_%s.pickle' %iteration
+	trainer.pickle_algo(fileName=fileName, kind="classification")
 
 
-#Run Clasification
-trainer = Trainer()
-trainer.drop_columns()
-trainer.drop_prepaid_loans()
-trainer.define_features_targets(kind="classification")
-trainer.preprocess()
-trainer.define_rfc(n_estimators=100)
-trainer.train(kind="classification")
-print "Training Scores"
-trainer.predict(trainer.X_train, kind="classification")
-trainer.score(trainer.X_train, trainer.y_train, kind="classification")
-print "Test Scores"
-trainer.predict(trainer.X_test, kind="classification")
-trainer.score(trainer.X_test, trainer.y_test, kind="classification")
-print "Feature Importances"
-feature_importances = trainer.clf.feature_importances_
-for i, f in enumerate(feature_importances):
-	print trainer.loanData.drop(['loan_status'], 1).columns[i], f
-print "oob score"
-print trainer.clf.oob_score_
-trainer.pickle_algo(kind="classification")

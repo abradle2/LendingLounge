@@ -3,17 +3,9 @@ $(document).ready(function() {
     tablesorter();
     draw_default_prob_chart([[1,2], [3,3]]);
     draw_roi_chart([0,0], [1,1]);
-    $('.loan-tr').click(function(){
-        var tr_id = $(this).attr('id');
-        reload_loan_detail(tr_id);
-    });
-    $('.loan-tr')
-        .mouseenter(function() {
-             $(this).children().css('background-color', '#8dbdd8');
-    })
-      .mouseleave(function() {
-             $(this).children().css('background-color', 'white');
-    });
+    color_table_rows_on_hover();
+    show_sliders();
+    draw_d3_chart([[0,0], [1,1]]);
 });
 
 function draw_default_prob_chart(data) {
@@ -151,7 +143,6 @@ function draw_roi_chart(data) {
         }]
     }
     $.getJSON("./default_prob", function(json) {
-        console.log(json['pred_default_time']);
         options.series[0].data = json['pred_default_time'];
         options.xAxis.categories = json['index'];
         chart = new Highcharts.Chart(options);
@@ -274,7 +265,7 @@ function reload_loan_detail(loanId) {
         $('#loan-dti').text(json['loan']['dti'])
         $('#loan-annualInc').text(json['loan']['annualInc'])
         $('#loan-homeOwnership').text(json['loan']['homeOwnership'])
-        $('#loan-empLength').text(json['loan']['empLength'])
+        $('#loan-empLength').text(json['loan']['empLength']/10)
         $('#loan-occupation').text(json['loan']['occupation'])
         $('#loan-location').text(json['loan']['addrZip'] + ', ' + json['loan']['addrState'])
         $('#loan-ficoRange').text(json['loan']['ficoRangeLow'] + ' - ' + json['loan']['ficoRangeHigh'])
@@ -308,4 +299,252 @@ function move_needle() {
         $('#needle').css("left", 0);
     }
     setTimeout('move_needle()',100);
+};
+
+function color_table_rows_on_hover() {
+    $('.loan-tr').click(function(){
+        var tr_id = $(this).attr('id');
+        reload_loan_detail(tr_id);
+    });
+    $('.loan-tr')
+        .mouseenter(function() {
+             $(this).children().css('background-color', '#8dbdd8');
+    })
+      .mouseleave(function() {
+             $(this).children().css('background-color', 'white');
+    });
+};
+
+function show_sliders() {
+    var int_rate_min = 0
+    var int_rate_max = 30
+    var est_default_min = 0
+    var est_default_max = 100
+    $( "#int-rate-slider" ).slider({
+      range: true,
+      min: int_rate_min,
+      max: int_rate_max,
+      values: [ int_rate_min, int_rate_max ],
+      slide: function( event, ui ) {
+        $( "#int-rate-value" ).val( ui.values[ 0 ] + "% - " + ui.values[ 1 ] + "%" );
+        int_rate_min = ui.values[0];
+        int_rate_max = ui.values[1];
+      },
+      change: function(event, ui) {
+        $.getJSON("./loans-filtered", 
+            {   int_rate_min: int_rate_min, 
+                int_rate_max: int_rate_max,
+                est_default_min: est_default_min,
+                est_default_max: est_default_max },
+            function(json) {
+                update_table(json);
+                
+        });
+      }
+    });
+
+    //update the slider label on page load
+    $( "#int-rate-value" ).val( $( "#int-rate-slider" ).slider( "values", 0 ) +
+        "% - " + $( "#int-rate-slider" ).slider( "values", 1 ) + "%" );
+
+    $( "#est-default-slider" ).slider({
+      range: true,
+      min: est_default_min,
+      max: est_default_max,
+      values: [ est_default_min, est_default_max ],
+      slide: function( event, ui ) {
+        $( "#est-default-value" ).val( ui.values[ 0 ] + "% - " + ui.values[ 1 ] + "%" );
+        est_default_min = ui.values[0];
+        est_default_max = ui.values[1];
+      },
+      change: function(event, ui) {
+        $.getJSON("./loans-filtered", 
+            {   int_rate_min: int_rate_min, 
+                int_rate_max: int_rate_max,
+                est_default_min: est_default_min,
+                est_default_max: est_default_max },
+            function(json) {
+                update_table(json);
+                
+        });
+      }
+    });
+    //update the slider label on page load
+    $( "#est-default-value" ).val( $( "#est-default-slider" ).slider( "values", 0 ) +
+        "% - " + $( "#est-default-slider" ).slider( "values", 1 ) + "%" );
 }
+
+function update_table(loans) {
+    //Remove the currently displayed loans and update table
+    $(".loan-tr").remove();
+    for (i in loans['loans']) {
+        var id = loans['loans'][i]['id'];
+        var index = loans['loans'][i]['index'];
+        var grade = loans['loans'][i]['grade'];
+        var intRate = loans['loans'][i]['intRate'];
+        var loanAmnt = loans['loans'][i]['loanAmnt'];
+        var pred_default = loans['loans'][i]['pred_default'];
+        var pred_default_time = loans['loans'][i]['pred_default_time'];
+        var html_to_append = '<tr class="loan-tr tr-active" id="' + id + '"> \
+                                <td>' + index + '</td> \
+                                <td>' + grade + '</td> \
+                                <td>' + intRate + '</td> \
+                                <td>' + loanAmnt + '</td> \
+                                <td>' + pred_default + '</td> \
+                                <td>' + pred_default_time + '</td> \
+                              </tr>'
+        $("#topTable").append(html_to_append)
+    }
+    color_table_rows_on_hover();
+};
+
+function draw_d3_chart(data) {
+    var w = 500;
+    var h = 200;
+    var padding = 40;
+    get_data_ajax();
+    dataset = data;
+    // dataset = [
+    //                 [5, 20], [480, 90], [250, 50], [100, 33], [330, 95],
+    //                 [410, 12], [475, 44], [25, 67], [85, 21], [220, 88]
+    //               ];
+
+    var xScale = d3.scale.linear()
+                         .domain([0, d3.max(dataset, function(d) {return d[0];})])
+                         .range([padding, w - padding]);
+    var yScale = d3.scale.linear()
+                         .domain([0, d3.max(dataset, function(d) {return d[1];})])
+                         .range([h - padding, padding]);
+    var rScale = d3.scale.sqrt()
+                         .domain([0, d3.max(dataset, function(d) {return d[1];})])
+                         .range([2, 8]);
+
+    var svg = d3.select("#d3-chart")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h)
+                .attr("padding", padding);
+    svg.selectAll("circle")
+       .data(dataset)
+       .enter()
+       .append("circle")
+       .attr({
+            cx : function(d) {return xScale(d[0]);},
+            cy : function(d) {return yScale(d[1]);},
+            r : function(d) {return rScale(d[1]);} 
+       })
+       .on("click", function(d) {
+            console.log(d);
+        })
+       .on("mouseover", function(d) {
+            var xPos = parseFloat(d3.select(this).attr("cx") + 30);
+            var yPos = parseFloat(d3.select(this).attr("cy")) + 30;
+            d3.select("#tooltip")
+              .style("left", xPos + "px")
+              .style("top", yPos, + "px")
+              .select("#value")
+              .text(d);
+            d3.select("#tooltip").classed("hidden", false);
+       })
+       .on("mouseout", function() {
+            d3.select("#tooltip").classed("hidden", true);
+       });
+
+    //var formatAsPercentage = d3.format(".1%");
+    var xAxis = d3.svg.axis()
+                      .scale(xScale)
+                      .orient("bottom")
+                      .ticks(5);
+                      //.tickFormat(formatAsPercentage);
+    var yAxis = d3.svg.axis()
+                      .scale(yScale)
+                      .orient("left")
+                      .ticks(5);
+    svg.append("g")
+        .attr("id", "x_axis")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + (h - padding) + ")" )
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("id", "y_axis")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + padding + ",0)" )
+        .call(yAxis);
+
+
+    function get_data_ajax() {
+        $.getJSON("./default_prob", function(json) {
+            var data = [];
+            for (i in json['default_prob']) {
+                var default_prob = json['default_prob'][i];
+                var loan_id = i;
+                data.push([loan_id, default_prob]);
+            }
+            redraw_d3(data);
+        });
+    };
+
+    function redraw_d3(data) {
+        
+        xScale.domain([0, d3.max(data, function(d) {return d[0];})]);
+        //yScale.domain([0, d3.max(data, function(d) {return d[1];})]);
+        yScale.domain([0, 1]);
+        rScale.domain([0, d3.max(data, function(d) {return d[1];})])
+        xAxis.scale(xScale);
+        yAxis.scale(yScale);
+
+        svg.select("#x_axis")
+           .call(xAxis);
+        svg.select("#y_axis")
+            .call(yAxis);
+
+        //remove all data points
+        svg.selectAll("circle")
+           .data(dataset)
+           .remove();
+
+        //add new data points
+        svg.selectAll("circle")
+           .data(data)
+           .enter()
+           .append("circle")
+           .attr({
+                cx : function(d) {return xScale(d[0]);},
+                cy : function(d) {return yScale(d[1]);},
+                r : function(d) {return rScale(d[1]);} 
+            })
+           .on("click", function(d) {
+            console.log(d);
+        })
+       .on("mouseover", function(d) {
+            var xPos = parseFloat(d3.select(this).attr("cx"));
+            var yPos = parseFloat(d3.select(this).attr("cy"));
+            d3.select("#tooltip")
+              .style("left", xPos + "px")
+              .style("top", yPos, + "px")
+              .select("#value")
+              .text(d);
+            d3.select("#tooltip").classed("hidden", false);
+       })
+       .on("mouseout", function() {
+            d3.select("#tooltip").classed("hidden", true);
+       });
+
+       //axis labels
+       svg.append("text")
+          .attr("x", w/2)
+          .attr("y", h)
+          .attr("class", "axis_label")
+          .text("Loan ID");
+        svg.append("text")
+          .attr("y", 10)
+          .attr("x", -25)
+          .attr("class", "rotate")
+          .attr("text-anchor", "end")
+          .text("Est. Default Probability");
+    }
+};
+
+
+

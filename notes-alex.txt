@@ -1,0 +1,6 @@
+- some sort of distribution or analysis of what happens to a loans price as it leaves lending club and enters the secondary market
+- for a given day, what volume of trades go through? Distribution through time? Distribution through space?
+	- sort from fasted trader to lowest trader - who are the players?
+- volatility of product: distribution of prices on the secondary market
+- expected time of sale
+- 

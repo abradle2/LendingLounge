@@ -417,6 +417,7 @@ listedLoanData = loanData[['loanAmount',
 
 #Only keep 36 month terms:
 listedLoanData = listedLoanData[listedLoanData['term']==0]
+listedLoanData.index = range(len(listedLoanData))
 X_test = listedLoanData.values
 
 X_test = listedLoanData.astype(float).values
@@ -428,6 +429,20 @@ print prediction_clf[0]
 
 prediction_regr = regr.predict(X_test)
 
+#Calculate expected ROI
+roi = []
+for index, pred in enumerate(prediction_regr):
+    income = 0
+    installment = listedLoanData['installment'][index]  
+    loanAmount = listedLoanData['loanAmount'][index]
+    mths_till_default = 36
+    if prediction_clf[index][1] < 0.7:
+        mths_till_default = int(pred/30)
+    for i in range(0, mths_till_default):
+        income += installment
+    roi.append(income/loanAmount)
+print roi
+
 ##Upload predicted default times to database
 for i, val in enumerate(prediction_regr):
   sql_query = "UPDATE listed_loans SET pred_default_time='%s' WHERE id='%s';" %(int(val), loanData['id'][i])
@@ -436,6 +451,8 @@ for i, val in enumerate(prediction_clf):
   sql_query = "UPDATE listed_loans SET pred_default='%s' WHERE id='%s';" %(val[0], loanData['id'][i])
   cur.execute(sql_query)
   sql_query = "UPDATE listed_loans SET pred_paid='%s' WHERE id='%s';" %(val[1], loanData['id'][i])
+  cur.execute(sql_query)
+  sql_query = "UPDATE listed_loans SET pred_roi='%s' WHERE id='%s';" %(roi[i], loanData['id'][i])
   cur.execute(sql_query)
 cur.close()
 

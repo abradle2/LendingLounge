@@ -1,6 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="row">
+    <div class="col-lg-12" id="d3-graph-div">
+        <div class="panel panel-default">
+            
+            <div class="panel-body">
+                <div id="d3-chart"></div>
+            </div>
+        </div>
+    </div>
+    <div id="tooltip" class="hidden">
+        <p><strong>Label</strong></p>
+        <p><span id="value">100</span>%</p>
+    </div>
+</div>
+
+
+<div class="row">
     <div class="col-lg-12" id="graph-div">
         <div class="panel panel-default">
             
@@ -25,6 +41,19 @@
         <div>
             <div class="panel-heading">
                 <h3 class="panel-title">Loans Currently Available on the Lending Club Marketplace</h3>
+            </div>
+            <div id="selectors">
+                <div id="int-rate" class="selector-individual">
+                    <h4>Interest Rate</h4>
+                    <div id="int-rate-slider" class="slider"></div>
+                    <input type="text" id="int-rate-value" readonly>
+                </div>
+                <div id="est-default" class="selector-individual">
+                    <h4>Prob. of Default</h4>
+                    <div id="est-default-slider" class="slider"></div>
+                    <input type="text" id="est-default-value" readonly>
+                </div>
+
             </div>
             <div class="panel-body">
                 <div class="loan" id="loans-left">
@@ -95,7 +124,7 @@
 	                        			<li>Open Credit Lines: <b><span id="loan-openAccts">{{loans[0]['openAccts']}}</span></b></li>
 	                        			<li>Total Credit Lines: <b><span id="loan-totalAcc">{{loans[0]['totalAcc']}}</span></b></li>
 	                        			<li>Revolving Card Balance: <b>$<span id="loan-revolBal">{{loans[0]['revolBal']}}</span></b></li>
-	                        			<li>Revolving Line Utilization: <b><span id="loan-revolUtil">{{loans[0]['revolUtil']}}%</span></b></li>
+	                        			<li>Revolving Line Utilization: <b><span id="loan-revolUtil">{{loans[0]['revolUtil']}}</span>%</b></li>
 	                        			<li>Inquiries in Last 6 Months: <b><span id="loan-inqLast6Mths">{{loans[0]['inqLast6Mths']}}</span></b></li>
 	                        			<li>Accounts Now Delinquent: <b><span id="loan-accNowDelinq">{{loans[0]['accNowDelinq']}}</span></b></li>
 	                        		</ul>
