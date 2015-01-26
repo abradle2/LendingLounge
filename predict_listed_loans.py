@@ -33,426 +33,456 @@ import matplotlib.pyplot as plt
 
 import data_manipulation as dm
 
+class Predictor():
+  def __init__(self):
+    self.load_data()
+    self.load_classifiers()
+    self.clean_data()
+    self.add_unemp_rates()
+    self.add_swap_rates()
+    self.rearrange_loans()
+    self.remove_60mths()
+    self.define_x_test()
+    self.predict()
+    self.calculate_roi()
+    self.upload_to_db()
+    self.close_db_connection()
 
-with open('credentials.json') as credentials_file:
-    credentials = json.load(credentials_file)
+  def load_data(self):
+    with open('credentials.json') as credentials_file:
+      credentials = json.load(credentials_file)
+    passwd = credentials['mysql']['password']
+    self.con = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
 
-passwd = credentials['mysql']['password']
-con = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
+    sql_query = "SELECT * FROM listed_loans;"
+    self.loanData = sql.read_sql(sql_query, self.con)
 
-sql_query = "SELECT * FROM listed_loans;"
-loanData = sql.read_sql(sql_query, con)
+  def load_classifiers(self):
+    f = open('./pickles/rfr_20150123.pickle', 'rb')
+    self.regr = pickle.load(f)
+    f.close()
 
-f = open('./pickles/rfr_20150123.pickle', 'rb')
-regr = pickle.load(f)
-f.close()
+    f = open('./pickles/rfc_20150123.pickle', 'rb')
+    self.clf = pickle.load(f)
+    f.close()
 
-f = open('./pickles/rfc_20150123.pickle', 'rb')
-clf = pickle.load(f)
-f.close()
+  def clean_data(self):
+    self.loanData = self.loanData.drop(['asOfDate',
+                         'memberId',
+                         'expDefaultRate',
+                         'serviceFeeRate',
+                         'acceptD',
+                         'expD',
+                         'listD',
+                         'creditPullD',
+                         'reviewStatusD',
+                         'reviewStatus',
+                         'investorCount',
+                         'ilsExpD',
+                         'initialListStatus',
+                         'bcOpenToBuy',
+                         'percentBcGt75',
+                         'bcUtil',
+                         'ficoRangeLow',
+                         'ficoRangeHigh',
+                         'mthsSinceRecentRevolDelinq',
+                         'mthsSinceRecentBc',
+                         'mortAcc',
+                         'totalBalExMort',
+                         'totalBcLimit',
+                         'totalIlHighCreditLimit',
+                         'mthsSinceRecentBcDlq',
+                         'pubRecBankruptcies',
+                         'numAcctsEver120Ppd',
+                         'chargeoffWithin12Mths',
+                         'taxLiens',
+                         'numSats',
+                         'numTlOpPast12m',
+                         'avgCurBal',
+                         'numBcTl',
+                         'numActvBcTl',
+                         'numBcSats',
+                         'pctTlNvrDlq',
+                         'numTl90gDpd24m',
+                         'numTl30Dpd',
+                         'numTl120dpd2m',
+                         'numIlTl',
+                         'moSinOldIlAcct',
+                         'numActvRevTl',
+                         'moSinOldRevTlOp',
+                         'moSinRcntRevTlOp',
+                         'totalRevHiLim',
+                         'numRevTlBalGt0',
+                         'numOpRevTl',
+                         'totCollAmt',
+                         'totHiCredLim',
+                         'moSinRcntTl',
+                         'accNowDelinq',
+                         'delinqAmnt',
+                         'mthsSinceRecentInq',
+                         'numRevAccts',
+                         'totCurBal',
+                         'fundedAmount',
+                         'accOpenPast24Mths'], 1)
 
-loanData = loanData.drop(['asOfDate',
-                     'memberId',
-                     'expDefaultRate',
-                     'serviceFeeRate',
-                     'acceptD',
-                     'expD',
-                     'listD',
-                     'creditPullD',
-                     'reviewStatusD',
-                     'reviewStatus',
-                     'investorCount',
-                     'ilsExpD',
-                     'initialListStatus',
-                     'bcOpenToBuy',
-                     'percentBcGt75',
-                     'bcUtil',
-                     'ficoRangeLow',
-                     'ficoRangeHigh',
-                     'mthsSinceRecentRevolDelinq',
-                     'mthsSinceRecentBc',
-                     'mortAcc',
-                     'totalBalExMort',
-                     'totalBcLimit',
-                     'totalIlHighCreditLimit',
-                     'mthsSinceRecentBcDlq',
-                     'pubRecBankruptcies',
-                     'numAcctsEver120Ppd',
-                     'chargeoffWithin12Mths',
-                     'taxLiens',
-                     'numSats',
-                     'numTlOpPast12m',
-                     'avgCurBal',
-                     'numBcTl',
-                     'numActvBcTl',
-                     'numBcSats',
-                     'pctTlNvrDlq',
-                     'numTl90gDpd24m',
-                     'numTl30Dpd',
-                     'numTl120dpd2m',
-                     'numIlTl',
-                     'moSinOldIlAcct',
-                     'numActvRevTl',
-                     'moSinOldRevTlOp',
-                     'moSinRcntRevTlOp',
-                     'totalRevHiLim',
-                     'numRevTlBalGt0',
-                     'numOpRevTl',
-                     'totCollAmt',
-                     'totHiCredLim',
-                     'moSinRcntTl',
-                     'accNowDelinq',
-                     'delinqAmnt',
-                     'mthsSinceRecentInq',
-                     'numRevAccts',
-                     'totCurBal',
-                     'fundedAmount',
-                     'accOpenPast24Mths'], 1)
+    ##addr_state
+    statesBinarized = pd.get_dummies(self.loanData['addrState'])
+    self.loanData = pd.concat([self.loanData, statesBinarized], axis=1)
 
-##addr_state
-statesBinarized = pd.get_dummies(loanData['addrState'])
-loanData = pd.concat([loanData, statesBinarized], axis=1)
+    ##Fill in the missing states:
+    cols = self.loanData.columns
+    states = ['AK',
+              'AL',
+              'AR',
+              'AZ',
+              'CA',
+              'CO',
+              'CT',
+              'DC',
+              'DE',
+              'FL',
+              'GA',
+              'HI',
+              'IA',
+              'IL',
+              'IDAHO',
+              'INDIANA',
+              'KS',
+              'KY',
+              'LA',
+              'MA',
+              'MD',
+              'ME',
+              'MI',
+              'MN',
+              'MO',
+              'MS',
+              'MT',
+              'NC',
+              'NE',
+              'NH',
+              'NJ',
+              'NM',
+              'NV',
+              'NY',
+              'OH',
+              'OK',
+              'OREGON',
+              'PA',
+              'RI',
+              'SC',
+              'SD',
+              'TN',
+              'TX',
+              'UT',
+              'VA',
+              'VT',
+              'WA',
+              'WI',
+              'WV',
+              'WY']
 
-##Fill in the missing states:
-cols = loanData.columns
-states = ['AK',
-          'AL',
-          'AR',
-          'AZ',
-          'CA',
-          'CO',
-          'CT',
-          'DC',
-          'DE',
-          'FL',
-          'GA',
-          'HI',
-          'IA',
-          'IL',
-          'IDAHO',
-          'INDIANA',
-          'KS',
-          'KY',
-          'LA',
-          'MA',
-          'MD',
-          'ME',
-          'MI',
-          'MN',
-          'MO',
-          'MS',
-          'MT',
-          'NC',
-          'NE',
-          'NH',
-          'NJ',
-          'NM',
-          'NV',
-          'NY',
-          'OH',
-          'OK',
-          'OREGON',
-          'PA',
-          'RI',
-          'SC',
-          'SD',
-          'TN',
-          'TX',
-          'UT',
-          'VA',
-          'VT',
-          'WA',
-          'WI',
-          'WV',
-          'WY']
+    for state in states:
+        if state not in cols:
+            self.loanData[state] = 0
 
-for state in states:
-    if state not in cols:
-        loanData[state] = 0
+    ##term
+    print "term"
+    self.loanData['term'] = [0 if x == 36 else 1 for x in self.loanData['term']]
 
-##term
-print "term"
-loanData['term'] = [0 if x == 36 else 1 for x in loanData['term']]
-
-##grade
-print "grade"
-loanData = loanData[pd.isnull(loanData['grade']) == 0]
-loanData.index = range(len(loanData))
-#Binarize the grade
-gradesBinarized = pd.get_dummies(loanData['grade'])
-loanData = pd.concat([loanData, gradesBinarized], axis=1)
-loanData = loanData.drop(['grade'], 1)
-grades = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-cols = loanData.columns
-for grade in grades:
-    if grade not in cols:
-        loanData[grade] = 0
+    ##grade
+    print "grade"
+    self.loanData = self.loanData[pd.isnull(self.loanData['grade']) == 0]
+    self.loanData.index = range(len(self.loanData))
+    #Binarize the grade
+    gradesBinarized = pd.get_dummies(self.loanData['grade'])
+    self.loanData = pd.concat([self.loanData, gradesBinarized], axis=1)
+    self.loanData = self.loanData.drop(['grade'], 1)
+    grades = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+    cols = self.loanData.columns
+    for grade in grades:
+        if grade not in cols:
+            self.loanData[grade] = 0
 
 
-#Subgrade - numeric part of LendingClub's subgrade (ie: b3 -> grade=b, subgrade=3)
-loanData['subGrade'] = [x[1:] for x in loanData['subGrade']]
+    #Subgrade - numeric part of LendingClub's subgrade (ie: b3 -> grade=b, subgrade=3)
+    self.loanData['subGrade'] = [x[1:] for x in self.loanData['subGrade']]
 
-##emp_length
-emp_years = dict(zip(loanData['empLength'].unique(), np.arange(loanData['empLength'].nunique())))
-loanData['empLength'] = loanData['empLength'].map(lambda x: emp_years[x])
+    ##emp_length
+    emp_years = dict(zip(self.loanData['empLength'].unique(), np.arange(self.loanData['empLength'].nunique())))
+    self.loanData['empLength'] = self.loanData['empLength'].map(lambda x: emp_years[x])
 
-homeOwnershipBinarized = pd.get_dummies(loanData['homeOwnership'])
-loanData = pd.concat([loanData, homeOwnershipBinarized], axis=1)
-ownership = ['ANY', 'MORTGAGE', 'NONE', 'OWN', 'RENT', 'OTHER']
-cols = loanData.columns
-for val in ownership:
-    if val not in cols:
-        loanData[val] = 0
-loanData = loanData.drop(['homeOwnership'], 1)
+    homeOwnershipBinarized = pd.get_dummies(self.loanData['homeOwnership'])
+    self.loanData = pd.concat([self.loanData, homeOwnershipBinarized], axis=1)
+    ownership = ['ANY', 'MORTGAGE', 'NONE', 'OWN', 'RENT', 'OTHER']
+    cols = self.loanData.columns
+    for val in ownership:
+        if val not in cols:
+            self.loanData[val] = 0
+    self.loanData = self.loanData.drop(['homeOwnership'], 1)
 
-loanData['isIncV'] = [1 if x == "SOURCE_VERIFIED" else x for x in loanData['isIncV']]
-loanData['isIncV'] = [2 if x == "VERIFIED" else x for x in loanData['isIncV']]
-loanData['isIncV'] = [0 if x == "NOT_VERIFIED" else x for x in loanData['isIncV']]
+    self.loanData['isIncV'] = [1 if x == "SOURCE_VERIFIED" else x for x in self.loanData['isIncV']]
+    self.loanData['isIncV'] = [2 if x == "VERIFIED" else x for x in self.loanData['isIncV']]
+    self.loanData['isIncV'] = [0 if x == "NOT_VERIFIED" else x for x in self.loanData['isIncV']]
 
-purposeBinarized = pd.get_dummies(loanData['purpose'])
-loanData = pd.concat([loanData, purposeBinarized], axis=1)
-purposes = ['car',
-            'credit_card',
-            'debt_consolidation',
-            'home_improvement',
-            'house',
-            'major_purchase',
-            'medical',
-            'moving',
-            'renewable_energy',
-            'small_business',
-            'vacation',
-            'wedding',
-            'other']
-cols = loanData.columns
-for purpose in purposes:
-    if purpose not in cols:
-        loanData[purpose] = 0
+    purposeBinarized = pd.get_dummies(self.loanData['purpose'])
+    self.loanData = pd.concat([self.loanData, purposeBinarized], axis=1)
+    purposes = ['car',
+                'credit_card',
+                'debt_consolidation',
+                'home_improvement',
+                'house',
+                'major_purchase',
+                'medical',
+                'moving',
+                'renewable_energy',
+                'small_business',
+                'vacation',
+                'wedding',
+                'other']
+    cols = self.loanData.columns
+    for purpose in purposes:
+        if purpose not in cols:
+            self.loanData[purpose] = 0
 
-loanData['addrZip'] = [x[:3] for x in loanData['addrZip']]
+    self.loanData['addrZip'] = [x[:3] for x in self.loanData['addrZip']]
 
-##yrs_since_first_cr_line
-yrs_since_first_cr_line = []
-loanData['yrs_since_first_cr_line'] = 0
-for i in range(len(loanData['earliestCrLine'])):
-    earliest_year = pd.to_datetime(loanData['earliestCrLine'][i]).year
-    yrs_since_first_cr_line.append(date.today().year - earliest_year )
-loanData['yrs_since_first_cr_line'] = yrs_since_first_cr_line
+    ##yrs_since_first_cr_line
+    yrs_since_first_cr_line = []
+    self.loanData['yrs_since_first_cr_line'] = 0
+    for i in range(len(self.loanData['earliestCrLine'])):
+        earliest_year = pd.to_datetime(self.loanData['earliestCrLine'][i]).year
+        yrs_since_first_cr_line.append(date.today().year - earliest_year )
+    self.loanData['yrs_since_first_cr_line'] = yrs_since_first_cr_line
 
-loanData['issue_month'] = date.today().month
-loanData['issue_year'] = date.today().year
+    self.loanData['issue_month'] = date.today().month
+    self.loanData['issue_year'] = date.today().year
 
-loanData['desc_length'] = [len(str(x)) for x in loanData['description']]
+    self.loanData['desc_length'] = [len(str(x)) for x in self.loanData['description']]
 
-loanData['install_frac_of_monthly_inc'] = loanData['installment']/loanData['annualInc']*12.0
+    self.loanData['install_frac_of_monthly_inc'] = self.loanData['installment']/self.loanData['annualInc']*12.0
 
-cur = con.cursor()
+  def add_unemp_rates(self):
+    self.cur = self.con.cursor()
 
-cur.execute("SELECT * FROM unemployment_rates")
-unemp_rate_tuple = cur.fetchall()
-print unemp_rate_tuple[0]
+    self.cur.execute("SELECT * FROM unemployment_rates")
+    unemp_rate_tuple = self.cur.fetchall()
+    print unemp_rate_tuple[0]
 
-unemp_rate_dict = dict()
-for entry in unemp_rate_tuple:
-	unemp_state = entry[1]
-	unemp_year = entry[2]
-	unemp_month = entry[3]
-	unemp_rate = entry[4]
-	key = "%s%s%s" %(unemp_state, unemp_year, unemp_month)
-	unemp_rate_dict[key] = unemp_rate
-loanData['unemp_rate_12mths'] = 0
-loanData['unemp_rate_6mths'] = 0
-loanData['unemp_rate_3mths'] = 0
-for i, loan in enumerate(loanData['id']):
-	key_12mths = "%s%s%s" %(loanData['addrState'][i],
-							(loanData['issue_year'][i]-1),
-							loanData['issue_month'][i])
-	if loanData['issue_month'][i] <= 6:
-		key_6mths = "%s%s%s" %(loanData['addrState'][i],
-								(loanData['issue_year'][i]-1),
-								loanData['issue_month'][i]+6)
-	else:
-		key_6mths = "%s%s%s" %(loanData['addr_state'][i],
-								(loanData['issue_year'][i]),
-								loanData['issue_month'][i]-6)
-	if loanData['issue_month'][i] <= 3:
-		key_3mths = "%s%s%s" %(loanData['addrState'][i],
-								(loanData['issue_year'][i]-1),
-								loanData['issue_month'][i]+3)
-	else:
-		key_3mths = "%s%s%s" %(loanData['addrState'][i],
-								(loanData['issue_year'][i]),
-								loanData['issue_month'][i]-3)
-	try:
-		loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
-		loanData['unemp_rate_6mths'].iloc[i] = unemp_rate_dict[key_6mths]
-		loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
-	except KeyError:
-		print KeyError, "loan ", i
-		loanData = loanData.drop(loanData.index[i])
-		loanData.index = range(len(loanData))
+    unemp_rate_dict = dict()
+    for entry in unemp_rate_tuple:
+    	unemp_state = entry[1]
+    	unemp_year = entry[2]
+    	unemp_month = entry[3]
+    	unemp_rate = entry[4]
+    	key = "%s%s%s" %(unemp_state, unemp_year, unemp_month)
+    	unemp_rate_dict[key] = unemp_rate
+    self.loanData['unemp_rate_12mths'] = 0
+    self.loanData['unemp_rate_6mths'] = 0
+    self.loanData['unemp_rate_3mths'] = 0
+    for i, loan in enumerate(self.loanData['id']):
+    	key_12mths = "%s%s%s" %(self.loanData['addrState'][i],
+    							(self.loanData['issue_year'][i]-1),
+    							self.loanData['issue_month'][i])
+    	if self.loanData['issue_month'][i] <= 6:
+    		key_6mths = "%s%s%s" %(self.loanData['addrState'][i],
+    								(self.loanData['issue_year'][i]-1),
+    								self.loanData['issue_month'][i]+6)
+    	else:
+    		key_6mths = "%s%s%s" %(self.loanData['addr_state'][i],
+    								(self.loanData['issue_year'][i]),
+    								self.loanData['issue_month'][i]-6)
+    	if self.loanData['issue_month'][i] <= 3:
+    		key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
+    								(self.loanData['issue_year'][i]-1),
+    								self.loanData['issue_month'][i]+3)
+    	else:
+    		key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
+    								(self.loanData['issue_year'][i]),
+    								self.loanData['issue_month'][i]-3)
+    	try:
+    		self.loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
+    		self.loanData['unemp_rate_6mths'].iloc[i] = unemp_rate_dict[key_6mths]
+    		self.loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
+    	except KeyError:
+    		print KeyError, "loan ", i
+    		self.loanData = self.loanData.drop(self.loanData.index[i])
+    		self.loanData.index = range(len(self.loanData))
 
-cur.execute("SELECT * FROM interest_rate_swaps")
-int_rate_swap_tuple = cur.fetchall()
+  def add_swap_rates(self): 
+    self.cur.execute("SELECT * FROM interest_rate_swaps")
+    int_rate_swap_tuple = self.cur.fetchall()
 
-int_rate_swap_dict = dict()
-for entry in int_rate_swap_tuple:
-	int_rate_swap_year = entry[1]
-	int_rate_swap_rate = entry[3]
-	int_rate_swap_dict[int_rate_swap_year] = int_rate_swap_rate
-loanData['implied_risk'] = 0
-loanData.index = range(len(loanData))
-indices_to_drop = []
-for i in range(len(loanData)):
-    year_i = loanData['issue_year'][i]
-    swap_rate_i = int_rate_swap_dict[year_i - 1]
-    int_rate_i = loanData['intRate'][i]
-    impl_risk = int_rate_i - swap_rate_i
-    try:
-        loanData['implied_risk'].iloc[i] = impl_risk
-    except Error:
-        print Error, "loan ", i
-loanData = loanData[loanData['implied_risk'] != 0]
-loanData.index = range(len(loanData))
+    int_rate_swap_dict = dict()
+    for entry in int_rate_swap_tuple:
+    	int_rate_swap_year = entry[1]
+    	int_rate_swap_rate = entry[3]
+    	int_rate_swap_dict[int_rate_swap_year] = int_rate_swap_rate
+    self.loanData['implied_risk'] = 0
+    self.loanData.index = range(len(self.loanData))
+    indices_to_drop = []
+    for i in range(len(self.loanData)):
+        year_i = self.loanData['issue_year'][i]
+        swap_rate_i = int_rate_swap_dict[year_i - 1]
+        int_rate_i = self.loanData['intRate'][i]
+        impl_risk = int_rate_i - swap_rate_i
+        try:
+            self.loanData['implied_risk'].iloc[i] = impl_risk
+        except Error:
+            print Error, "loan ", i
+    self.loanData = self.loanData[self.loanData['implied_risk'] != 0]
+    self.loanData.index = range(len(self.loanData))
 
-listedLoanData = loanData[['loanAmount',
-'term',
-'intRate',
-'installment',
-'empLength',
-'annualInc',
-'isIncV',
-'addrZip',
-'dti',
-'delinq2Yrs',
-'inqLast6Mths',
-'mthsSinceLastDelinq',
-'mthsSinceLastRecord',
-'openAcc',
-'pubRec',
-'revolBal',
-'revolUtil',
-'totalAcc',
-'collections12MthsExMed',
-'mthsSinceLastMajorDerog',
-'A',
-'B',
-'C',
-'D',
-'E',
-'F',
-'G',
-'MORTGAGE',
-'OWN',
-'RENT',
-'issue_month',
-#'issue_year',
-'car',
-'credit_card',
-'debt_consolidation',
-'home_improvement',
-'house',
-'major_purchase',
-'medical',
-'moving',
-'renewable_energy',
-'small_business',
-'vacation',
-'wedding',
-'AK',
-'AL',
-'AR',
-'AZ',
-'CA',
-'CO',
-'CT',
-'DC',
-'DE',
-'FL',
-'GA',
-'HI',
-'IL',
-'INDIANA',
-'KS',
-'KY',
-'LA',
-'MA',
-'MD',
-'MI',
-'MN',
-'MO',
-'MS',
-'MT',
-'NC',
-'NH',
-'NJ',
-'NM',
-'NV',
-'NY',
-'OH',
-'OK',
-'OREGON',
-'PA',
-'RI',
-'SC',
-'SD',
-'TN',
-'TX',
-'UT',
-'VA',
-'VT',
-'WA',
-'WI',
-'WV',
-'WY',
-'yrs_since_first_cr_line',
-'desc_length',
-'unemp_rate_12mths',
-'unemp_rate_6mths',
-'unemp_rate_3mths',
-'subGrade',
-'other',
-'install_frac_of_monthly_inc',
-'implied_risk']]
+  def rearrange_loans(self):
+    self.listedLoanData = self.loanData[[
+    'id',
+    'loanAmount',
+    'term',
+    'intRate',
+    'installment',
+    'empLength',
+    'annualInc',
+    'isIncV',
+    'addrZip',
+    'dti',
+    'delinq2Yrs',
+    'inqLast6Mths',
+    'mthsSinceLastDelinq',
+    'mthsSinceLastRecord',
+    'openAcc',
+    'pubRec',
+    'revolBal',
+    'revolUtil',
+    'totalAcc',
+    'collections12MthsExMed',
+    'mthsSinceLastMajorDerog',
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'MORTGAGE',
+    'OWN',
+    'RENT',
+    'issue_month',
+    #'issue_year',
+    'car',
+    'credit_card',
+    'debt_consolidation',
+    'home_improvement',
+    'house',
+    'major_purchase',
+    'medical',
+    'moving',
+    'renewable_energy',
+    'small_business',
+    'vacation',
+    'wedding',
+    'AK',
+    'AL',
+    'AR',
+    'AZ',
+    'CA',
+    'CO',
+    'CT',
+    'DC',
+    'DE',
+    'FL',
+    'GA',
+    'HI',
+    'IL',
+    'INDIANA',
+    'KS',
+    'KY',
+    'LA',
+    'MA',
+    'MD',
+    'MI',
+    'MN',
+    'MO',
+    'MS',
+    'MT',
+    'NC',
+    'NH',
+    'NJ',
+    'NM',
+    'NV',
+    'NY',
+    'OH',
+    'OK',
+    'OREGON',
+    'PA',
+    'RI',
+    'SC',
+    'SD',
+    'TN',
+    'TX',
+    'UT',
+    'VA',
+    'VT',
+    'WA',
+    'WI',
+    'WV',
+    'WY',
+    'yrs_since_first_cr_line',
+    'desc_length',
+    'unemp_rate_12mths',
+    'unemp_rate_6mths',
+    'unemp_rate_3mths',
+    'subGrade',
+    'other',
+    'install_frac_of_monthly_inc',
+    'implied_risk']]
 
-#Only keep 36 month terms:
-listedLoanData = listedLoanData[listedLoanData['term']==0]
-listedLoanData.index = range(len(listedLoanData))
-X_test = listedLoanData.values
+  def remove_60mths(self):
+    #Only keep 36 month terms:
+    self.listedLoanData = self.listedLoanData[self.listedLoanData['term']==0]
+    self.listedLoanData.index = range(len(self.listedLoanData))
+  
+  def define_x_test(self):
+    #self.X_test = self.listedLoanData.drop(['id'], 1).values
 
-X_test = listedLoanData.astype(float).values
-(X_test, _) = dm.standardize_samples(X_test, X_test)
-(X_test, _) = dm.scale_samples_to_range(X_test, X_test)
+    self.X_test = self.listedLoanData.drop(['id'], 1).astype(float).values
+    (self.X_test, _) = dm.standardize_samples(self.X_test, self.X_test)
+    (self.X_test, _) = dm.scale_samples_to_range(self.X_test, self.X_test)
 
-prediction_clf = clf.predict_proba(X_test)
-print prediction_clf[0]
+  def predict(self):
+    self.prediction_clf = self.clf.predict_proba(self.X_test)
+    print self.prediction_clf[0]
 
-prediction_regr = regr.predict(X_test)
+    self.prediction_regr = self.regr.predict(self.X_test)
 
-#Calculate expected ROI
-roi = []
-for index, pred in enumerate(prediction_regr):
-    income = 0
-    installment = listedLoanData['installment'][index]  
-    loanAmount = listedLoanData['loanAmount'][index]
-    mths_till_default = 36
-    if prediction_clf[index][1] < 0.7:
-        mths_till_default = int(pred/30)
-    for i in range(0, mths_till_default):
-        income += installment
-    roi.append(income/loanAmount)
-print roi
+  def calculate_roi(self):
+    #Calculate expected ROI
+    self.roi = []
+    for index, pred in enumerate(self.prediction_regr):
+        income = 0
+        installment = self.listedLoanData['installment'][index]  
+        loanAmount = self.listedLoanData['loanAmount'][index]
+        mths_till_default = 36
+        if self.prediction_clf[index][1] < 0.7:
+            mths_till_default = int(pred/30)
+        for i in range(0, mths_till_default):
+            income += installment
+        self.roi.append(income/loanAmount)
+    print self.roi
 
-##Upload predicted default times to database
-for i, val in enumerate(prediction_regr):
-  sql_query = "UPDATE listed_loans SET pred_default_time='%s' WHERE id='%s';" %(int(val), loanData['id'][i])
-  cur.execute(sql_query)
-for i, val in enumerate(prediction_clf):
-  sql_query = "UPDATE listed_loans SET pred_default='%s' WHERE id='%s';" %(val[0], loanData['id'][i])
-  cur.execute(sql_query)
-  sql_query = "UPDATE listed_loans SET pred_paid='%s' WHERE id='%s';" %(val[1], loanData['id'][i])
-  cur.execute(sql_query)
-  sql_query = "UPDATE listed_loans SET pred_roi='%s' WHERE id='%s';" %(roi[i], loanData['id'][i])
-  cur.execute(sql_query)
-cur.close()
+  def upload_to_db(self):
+    ##Upload predicted default times to database
+    for i, val in enumerate(self.prediction_regr):
+      sql_query = "UPDATE listed_loans SET pred_default_time='%s' WHERE id='%s';" %(int(val), self.listedLoanData['id'][i])
+      self.cur.execute(sql_query)
+    for i, val in enumerate(self.prediction_clf):
+      sql_query = "UPDATE listed_loans SET pred_default='%s' WHERE id='%s';" %(val[0], self.listedLoanData['id'][i])
+      self.cur.execute(sql_query)
+      sql_query = "UPDATE listed_loans SET pred_paid='%s' WHERE id='%s';" %(val[1], self.listedLoanData['id'][i])
+      self.cur.execute(sql_query)
+      sql_query = "UPDATE listed_loans SET pred_roi='%s' WHERE id='%s';" %(self.roi[i], self.listedLoanData['id'][i])
+      self.cur.execute(sql_query)
 
+  def close_db_connection(self):
+    self.cur.close()
+
+p = Predictor()
