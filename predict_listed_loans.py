@@ -58,13 +58,19 @@ class Predictor():
     self.loanData = sql.read_sql(sql_query, self.con)
 
   def load_classifiers(self):
-    f = open('./pickles/rfr_20150123.pickle', 'rb')
-    self.regr = pickle.load(f)
-    f.close()
+    self.regrs = []
+    self.clfs = []
+    for i in range(0, 10):
+      rfr_file = './pickles/rfr_%s.pickle' %i
+      rfc_file = './pickles/rfc_%s.pickle' %i
+      print "loading rf classifiers %s" %i
+      f = open(rfr_file, 'rb')
+      self.regrs.append(pickle.load(f))
+      f.close()
 
-    f = open('./pickles/rfc_20150123.pickle', 'rb')
-    self.clf = pickle.load(f)
-    f.close()
+      f = open(rfc_file, 'rb')
+      self.clfs.append(pickle.load(f)) 
+      f.close()
 
   def clean_data(self):
     self.loanData = self.loanData.drop(['asOfDate',
@@ -449,10 +455,38 @@ class Predictor():
     (self.X_test, _) = dm.scale_samples_to_range(self.X_test, self.X_test)
 
   def predict(self):
-    self.prediction_clf = self.clf.predict_proba(self.X_test)
-    print self.prediction_clf[0]
+    #arrays to hold final prediction values
+    self.prediction_clf_0 = []
+    self.prediction_clf_1 = []
+    self.prediction_regr = []
+    self.error_clf = []
+    self.error_regr = []
 
-    self.prediction_regr = self.regr.predict(self.X_test)
+    print "predicting loans"
+    for loan in self.X_test:
+      #temporary variables to hold predictions for each new loan
+      preds_clf = []
+      preds_regr = []
+      for i in range(0, 10):
+        preds_clf.append(self.clfs[i].predict_proba(loan))
+        preds_regr.append(self.regrs[i].predict(loan))
+      #break up positive and negative probabilities for clf:
+      preds_clf_0 = [x[0][0] for x in preds_clf]
+      preds_clf_1 = [x[0][1] for x in preds_clf]
+
+      mean_clf_0 = np.mean(preds_clf_0)
+      mean_clf_1 = np.mean(preds_clf_1)
+      std_clf = np.std(preds_clf_0)
+      self.prediction_clf_0.append(mean_clf_0)
+      self.prediction_clf_1.append(mean_clf_1)
+      self.error_clf.append(std_clf)
+
+      mean_regr = np.mean(preds_regr)
+      std_regr = np.std(preds_regr)
+      self.prediction_regr.append(mean_regr)
+      self.error_regr.append(std_regr)
+    print self.error_clf
+
 
   def calculate_roi(self):
     #Calculate expected ROI
@@ -462,23 +496,33 @@ class Predictor():
         installment = self.listedLoanData['installment'][index]  
         loanAmount = self.listedLoanData['loanAmount'][index]
         mths_till_default = 36
-        if self.prediction_clf[index][1] < 0.7:
+        if self.prediction_clf_1[index] < 0.7:
             mths_till_default = int(pred/30)
         for i in range(0, mths_till_default):
             income += installment
         self.roi.append(income/loanAmount)
-    print self.roi
 
   def upload_to_db(self):
     ##Upload predicted default times to database
     for i, val in enumerate(self.prediction_regr):
+      #default time
       sql_query = "UPDATE listed_loans SET pred_default_time='%s' WHERE id='%s';" %(int(val), self.listedLoanData['id'][i])
       self.cur.execute(sql_query)
-    for i, val in enumerate(self.prediction_clf):
-      sql_query = "UPDATE listed_loans SET pred_default='%s' WHERE id='%s';" %(val[0], self.listedLoanData['id'][i])
+      #default time error
+      sql_query = "UPDATE listed_loans SET pred_default_time_error='%s' WHERE id='%s';" %(self.error_regr[i], self.listedLoanData['id'][i])
       self.cur.execute(sql_query)
-      sql_query = "UPDATE listed_loans SET pred_paid='%s' WHERE id='%s';" %(val[1], self.listedLoanData['id'][i])
+    for i, val in enumerate(self.prediction_clf_0):
+      #default prediction
+      sql_query = "UPDATE listed_loans SET pred_default='%s' WHERE id='%s';" %(val, self.listedLoanData['id'][i])
       self.cur.execute(sql_query)
+      #default prediction error
+      sql_query = "UPDATE listed_loans SET pred_default_error='%s' WHERE id='%s';" %(self.error_clf[i], self.listedLoanData['id'][i])
+      self.cur.execute(sql_query)
+    for i, val in enumerate(self.prediction_clf_1):
+      #paid prediction
+      sql_query = "UPDATE listed_loans SET pred_paid='%s' WHERE id='%s';" %(val, self.listedLoanData['id'][i])
+      self.cur.execute(sql_query)
+      #roi
       sql_query = "UPDATE listed_loans SET pred_roi='%s' WHERE id='%s';" %(self.roi[i], self.listedLoanData['id'][i])
       self.cur.execute(sql_query)
 
@@ -486,3 +530,7 @@ class Predictor():
     self.cur.close()
 
 p = Predictor()
+
+
+
+

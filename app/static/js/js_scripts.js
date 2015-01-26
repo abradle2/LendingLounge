@@ -398,13 +398,15 @@ function update_table(loans) {
         var loanAmnt = loans['loans'][i]['loanAmnt'];
         var pred_default = loans['loans'][i]['pred_default'];
         var pred_default_time = loans['loans'][i]['pred_default_time'];
+        var pred_default_error = loans['loans'][i]['pred_default_error'];
+        var pred_default_time_error = loans['loans'][i]['pred_default_time_error'];
         var html_to_append = '<tr class="loan-tr tr-active" id="' + id + '"> \
                                 <td>' + index + '</td> \
                                 <td>' + grade + '</td> \
                                 <td>' + intRate + '</td> \
                                 <td>' + loanAmnt + '</td> \
-                                <td>' + pred_default + '</td> \
-                                <td>' + pred_default_time + '</td> \
+                                <td>' + pred_default + '&#177; ' + pred_default_error + '</td> \
+                                <td>' + pred_default_time + '&#177; ' + pred_default_time_error + '</td> \
                               </tr>'
         $("#topTable").append(html_to_append)
     }

@@ -11,7 +11,7 @@ db = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='in
 
 with db:
 		cur = db.cursor()
-		cur.execute("SELECT * from listed_loans LIMIT 50;")
+		cur.execute("SELECT * from listed_loans;")
 		query_results = cur.fetchall()
 loans = []
 index_counter = 0
@@ -24,7 +24,7 @@ for i, result in enumerate(query_results):
 					  'id':result[1], 
 					  'memberId': result[2],
 					  'term':result[3],
-					  'intRate': result[4],
+					  'intRate':result[4],
 					  'defaultProb': result[5],
 					  'serviceFeeRate':result[6],
 					  'installment':result[7],
@@ -68,10 +68,27 @@ for i, result in enumerate(query_results):
 					  'pred_default_time':result[86],
 					  'pred_default':result[87],
 					  'pred_paid':result[88],
-					  'pred_roi':result[89]})
+					  'pred_roi':result[89],
+					  'pred_default_time_error':result[90],
+					  'pred_default_error':result[91],
+					  'pred_roi_error':result[92]})
 for i, loan in enumerate(loans):
 	if loan['pred_paid'] > 0.5:
 		loans[i]['pred_default_time'] = '-'
+		loans[i]['pred_default_time_error'] = '-'
+	#format predictions -- MOVE THIS TO THE PREDICTION CODE
+	try:
+		loans[i]['pred_default'] = "%.2f" %float(loans[i]['pred_default'])
+	except ValueError:
+		pass
+	try:
+		loans[i]['pred_default_time_error'] = "%.2f" %float(loans[i]['pred_default_time_error'])
+	except ValueError:
+		pass
+	try:
+		loans[i]['pred_default_error'] = "%.2f" %float(loans[i]['pred_default_error'])
+	except ValueError:
+		pass
 
 
 @app.route('/')
@@ -122,8 +139,10 @@ def get_loans_filtered():
 	#array to return
 	loans_to_show = []
 	for loan in loans:
-		if loan['intRate'] >= int_rate_min and loan['intRate'] <= int_rate_max:
-			if loan['pred_default'] >= est_default_min and loan['pred_default'] <= est_default_max:
+		intRate = float(loan['intRate'])
+		predDefault = float(loan['pred_default'])
+		if intRate >= int_rate_min and intRate <= int_rate_max:
+			if predDefault >= est_default_min and predDefault <= est_default_max:
 				loans_to_show.append(loan)
 	return jsonify(loans = loans_to_show)
 

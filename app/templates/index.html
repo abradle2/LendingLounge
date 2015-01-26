@@ -82,8 +82,8 @@
                             <td>{{loan['grade']}}</td> 
                             <td>{{loan['intRate']}}%</td> 
                             <td>${{loan['loanAmnt']}}0</td>
-                            <td>{{loan['pred_default']}}</td>
-                            <td>{{loan['pred_default_time']}}</td> 
+                            <td>{{loan['pred_default']}} &#177; {{loan['pred_default_error']}}</td>
+                            <td>{{loan['pred_default_time']}} &#177; {{loan['pred_default_time_error']}}</td> 
                         </tr>
                         {% endfor %}
                         </tbody> 

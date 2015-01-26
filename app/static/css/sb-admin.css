@@ -258,7 +258,7 @@ ul.alert-dropdown {
 .axis path, .axis line {
     fill: none;
     stroke: #d3d3d3;
-    stroke-width: 2;
+    stroke-width: 0;
     shape-rendering: crispEdges;
 }
 
