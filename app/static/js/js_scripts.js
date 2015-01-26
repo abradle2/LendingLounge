@@ -1,11 +1,12 @@
 $(document).ready(function() {
     move_needle();
     tablesorter();
-    draw_default_prob_chart([[1,2], [3,3]]);
-    draw_roi_chart([0,0], [1,1]);
+    //draw_default_prob_chart([[1,2], [3,3]]);
+    //draw_roi_chart([0,0], [1,1]);
     color_table_rows_on_hover();
     show_sliders();
-    draw_d3_chart([[0,0], [1,1]]);
+    get_data_ajax();
+
 });
 
 function draw_default_prob_chart(data) {
@@ -320,6 +321,7 @@ function show_sliders() {
     var int_rate_max = 30
     var est_default_min = 0
     var est_default_max = 100
+
     $( "#int-rate-slider" ).slider({
       range: true,
       min: int_rate_min,
@@ -338,7 +340,12 @@ function show_sliders() {
                 est_default_max: est_default_max },
             function(json) {
                 update_table(json);
-                
+                //update the graph
+                var blue_x_values = [];
+                for(i in json['loans']) {
+                    blue_x_values.push(json['loans'][i]['index']);
+                }
+                get_data_ajax(blue_x_values);
         });
       }
     });
@@ -365,6 +372,12 @@ function show_sliders() {
                 est_default_max: est_default_max },
             function(json) {
                 update_table(json);
+                //update the graph
+                var blue_x_values = [];
+                for(i in json['loans']) {
+                    blue_x_values.push(json['loans'][i]['index']);
+                }
+                get_data_ajax(blue_x_values);
                 
         });
       }
@@ -398,68 +411,56 @@ function update_table(loans) {
     color_table_rows_on_hover();
 };
 
-function draw_d3_chart(data) {
+function draw_d3_chart(container, data) {
+    //plots data in blue, data_grey in grey
+    //data_grey has no hover or tooltip
     var w = 500;
-    var h = 200;
+    var h = 250;
     var padding = 40;
-    get_data_ajax();
-    dataset = data;
-    // dataset = [
-    //                 [5, 20], [480, 90], [250, 50], [100, 33], [330, 95],
-    //                 [410, 12], [475, 44], [25, 67], [85, 21], [220, 88]
-    //               ];
 
+    //delete the current graph if it exists
+    $("#" + container + " svg").remove();
+
+    data = data.filter(function(el) {
+        return !isNaN(parseFloat(el[1]));
+    });
+
+    //Find max x value for axis scaling
+    var max_x = parseFloat(data[0][0]);
+    for (i in data) {
+        var x_cur = parseFloat(data[i][0]);
+        if (x_cur > max_x) {max_x = x_cur};
+    };
     var xScale = d3.scale.linear()
-                         .domain([0, d3.max(dataset, function(d) {return d[0];})])
+                         .domain([1, max_x+1])
                          .range([padding, w - padding]);
     var yScale = d3.scale.linear()
-                         .domain([0, d3.max(dataset, function(d) {return d[1];})])
+                         .domain([0, d3.max(data, function(d) {return d[1];})])
                          .range([h - padding, padding]);
     var rScale = d3.scale.sqrt()
-                         .domain([0, d3.max(dataset, function(d) {return d[1];})])
+                         .domain([0, d3.max(data, function(d) {return d[1];})])
                          .range([2, 8]);
 
-    var svg = d3.select("#d3-chart")
+    var svg = d3.select("#" + container)
                 .append("svg")
                 .attr("width", w)
                 .attr("height", h)
                 .attr("padding", padding);
+    
     svg.selectAll("circle")
-       .data(dataset)
-       .enter()
-       .append("circle")
-       .attr({
-            cx : function(d) {return xScale(d[0]);},
-            cy : function(d) {return yScale(d[1]);},
-            r : function(d) {return rScale(d[1]);} 
-       })
-       .on("click", function(d) {
-            console.log(d);
-        })
-       .on("mouseover", function(d) {
-            var xPos = parseFloat(d3.select(this).attr("cx") + 30);
-            var yPos = parseFloat(d3.select(this).attr("cy")) + 30;
-            d3.select("#tooltip")
-              .style("left", xPos + "px")
-              .style("top", yPos, + "px")
-              .select("#value")
-              .text(d);
-            d3.select("#tooltip").classed("hidden", false);
-       })
-       .on("mouseout", function() {
-            d3.select("#tooltip").classed("hidden", true);
-       });
+       .data(data)
+       .remove();
+    
 
-    //var formatAsPercentage = d3.format(".1%");
     var xAxis = d3.svg.axis()
                       .scale(xScale)
                       .orient("bottom")
                       .ticks(5);
-                      //.tickFormat(formatAsPercentage);
     var yAxis = d3.svg.axis()
                       .scale(yScale)
                       .orient("left")
-                      .ticks(5);
+                      .ticks(5)
+                      .tickSize(-(w-2*padding), 0, 0);
     svg.append("g")
         .attr("id", "x_axis")
         .attr("class", "axis")
@@ -472,79 +473,91 @@ function draw_d3_chart(data) {
         .attr("transform", "translate(" + padding + ",0)" )
         .call(yAxis);
 
+    //axis labels
+    svg.append("text")
+      .attr("x", w/2)
+      .attr("y", h)
+      .attr("class", "axis_label")
+      .text("Loan ID");
+    svg.append("text")
+      .attr("y", 10)
+      .attr("x", -50)
+      .attr("class", "rotate")
+      .attr("text-anchor", "end")
+      .text("Est. Default Probability");
 
-    function get_data_ajax() {
-        $.getJSON("./default_prob", function(json) {
-            var data = [];
-            for (i in json['default_prob']) {
-                var default_prob = json['default_prob'][i];
-                var loan_id = i;
-                data.push([loan_id, default_prob]);
-            }
-            redraw_d3(data);
-        });
-    };
-
-    function redraw_d3(data) {
-        
-        xScale.domain([0, d3.max(data, function(d) {return d[0];})]);
-        //yScale.domain([0, d3.max(data, function(d) {return d[1];})]);
-        yScale.domain([0, 1]);
-        rScale.domain([0, d3.max(data, function(d) {return d[1];})])
-        xAxis.scale(xScale);
-        yAxis.scale(yScale);
-
-        svg.select("#x_axis")
-           .call(xAxis);
-        svg.select("#y_axis")
-            .call(yAxis);
-
-        //remove all data points
-        svg.selectAll("circle")
-           .data(dataset)
-           .remove();
-
-        //add new data points
-        svg.selectAll("circle")
-           .data(data)
-           .enter()
-           .append("circle")
-           .attr({
-                cx : function(d) {return xScale(d[0]);},
-                cy : function(d) {return yScale(d[1]);},
-                r : function(d) {return rScale(d[1]);} 
-            })
-           .on("click", function(d) {
+    //add blue data points
+    svg.selectAll("circle")
+       .data(data)
+       .enter()
+       .append("circle")
+       .attr({
+            cx : function(d) {return xScale(d[0]);},
+            cy : function(d) {return yScale(d[1]);},
+            r : 5,
+            "class" : "blue_circle",
+            "fill" : function(d) {console.log(get_circle_color(d[2])); return get_circle_color(d[2]);}
+            //r : function(d) {return rScale(d[1]);} 
+       })
+       .on("click", function(d) {
             console.log(d);
         })
        .on("mouseover", function(d) {
-            var xPos = parseFloat(d3.select(this).attr("cx"));
-            var yPos = parseFloat(d3.select(this).attr("cy"));
-            d3.select("#tooltip")
-              .style("left", xPos + "px")
-              .style("top", yPos, + "px")
-              .select("#value")
-              .text(d);
-            d3.select("#tooltip").classed("hidden", false);
+            if(d[2] == 1) {
+                var xPos = parseFloat(d3.select(this).attr("cx"));
+                var yPos = parseFloat(d3.select(this).attr("cy"))+40;
+                d3.select("#tooltip-" + container)
+                  .style("left", xPos + "px")
+                  .style("top", yPos + "px")
+                  .select("#tooltip-id")
+                  .text(d[0]);
+                d3.select("#tooltip-" + container)
+                  .select("#tooltip-value")
+                  .text(d[1]);
+                d3.select("#tooltip-" + container).classed("hidden", false);
+                d3.select(this)
+                  .attr("r", 14)
+                  .attr("class", "circle-blue");
+            }
        })
        .on("mouseout", function() {
-            d3.select("#tooltip").classed("hidden", true);
-       });
-
-       //axis labels
-       svg.append("text")
-          .attr("x", w/2)
-          .attr("y", h)
-          .attr("class", "axis_label")
-          .text("Loan ID");
-        svg.append("text")
-          .attr("y", 10)
-          .attr("x", -25)
-          .attr("class", "rotate")
-          .attr("text-anchor", "end")
-          .text("Est. Default Probability");
+                d3.select("#tooltip-" + container).classed("hidden", true);
+                d3.select(this)
+                  .attr("r", 5);
+    });
+       
+    function get_circle_color(i) {
+        if(i == 0) {
+            return "#d3d3d3";
+        } else {
+            return "#7588FF"
+        }
     }
 };
+
+function get_data_ajax(blue_x_values) {
+    $.getJSON("./default_prob", function(json) {
+        var data_default = [];
+        var data_default_time = [];
+        for (i in json['default_prob']) {
+            var default_prob = json['default_prob'][i];
+            var loan_id = parseFloat(json['index'][i]);
+            var pred_default_time = json['pred_default_time'][i];
+            //var loan_id = parseInt(i)+1;  //keep graph aligned with table
+            var active = 0;
+            if(typeof(blue_x_values) == "undefined") {
+                active = 1;
+            }
+            else if($.inArray(parseFloat(i)+1, blue_x_values) != -1) {
+                active = 1;
+            }
+            data_default.push([loan_id, default_prob, active]);
+            data_default_time.push([loan_id, pred_default_time, active]);
+        }
+        draw_d3_chart("d3-chart-left", data_default);
+        draw_d3_chart("d3-chart-right", data_default_time);    
+        });
+    };
 
 
 

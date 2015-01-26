@@ -243,9 +243,12 @@ ul.alert-dropdown {
     border: none;
     text-align: center;
     width: 50%;
-
 }
 
+.d3-chart {
+    width: 50%;
+    float: left;
+}
 
 
 /*
@@ -254,7 +257,8 @@ ul.alert-dropdown {
 
 .axis path, .axis line {
     fill: none;
-    stroke: black;
+    stroke: #d3d3d3;
+    stroke-width: 2;
     shape-rendering: crispEdges;
 }
 
@@ -263,18 +267,24 @@ ul.alert-dropdown {
     font-size: 11px;
 }
 
-circle:hover {
+.tick line {
+   stroke : #d3d3d3;
+   stroke-width: 2;
+}
+
+circle.circle-blue:hover {
         fill: orange;
 }
 
-circle {
+circle{
         -moz-transition: all 0.3s;
         -o-transition: all 0.3s;
         -webkit-transition: all 0.3s;
         transition: all 0.3s;
+        /*fill: #7588FF;*/
 }
 
-#tooltip {
+#tooltip-d3-chart-left, #tooltip-d3-chart-right {
     position: absolute;
     width: 200px;
     height: auto;
@@ -289,11 +299,15 @@ circle {
     pointer-events: none;
 }
 
-#tooltip.hidden {
-    display: none;
+#tooltip-d3-chart-right {
+    margin-left: 50%;
 }
 
-#tooltip p {
+#tooltip-d3-chart-left.hidden, #tooltip-d3-chart-right.hidden {
+    display: block;
+}
+
+#tooltip-d3-chart-left p, #tooltip-d3-chart-right p {
     margin: 0;
     font-family: sans-serif;
     font-size: 16px;
@@ -311,3 +325,4 @@ circle {
 .axis-label {
     color: blue;
 }
+

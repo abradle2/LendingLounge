@@ -88,14 +88,17 @@ def presentation():
 #return all default probabilities
 @app.route('/default_prob')
 def get_default_prob():
+	index = []
 	default_prob = []
 	loan_id = []
 	pred_default_time = []
 	for loan in loans:
+		index.append(loan['index']) 
 		default_prob.append(loan['pred_default'])
 		loan_id.append(loan['id'])
 		pred_default_time.append(loan['pred_default_time'])
-	return jsonify(default_prob=default_prob, 
+	return jsonify(index=index,
+				   default_prob=default_prob, 
 				   loan_id=loan_id, 
 				   pred_default_time=pred_default_time)
 
