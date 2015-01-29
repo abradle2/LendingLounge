@@ -16,6 +16,7 @@ passwd = credentials['mysql']['password']
 con = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
 
 features_defaults = [
+			"id",
 			"loan_amnt",
 			"term",
 			"int_rate",
@@ -130,12 +131,13 @@ sql_query = "SELECT "
 for feat in features_defaults:
 	sql_query += feat + ','
 sql_query = sql_query[:-1]
-sql_query += " FROM completed_loans where term=0;"
+sql_query += " FROM completed_loans where term=0"
 
 loanData = sql.read_sql(sql_query, con)
 
-f = open('mysql_dump.pickle', 'wb')
+f = open('./pickles/mysql_dump.pickle', 'wb')
 pickle.dump(loanData, f)
 f.close()
+
 
 con.close()

@@ -5,6 +5,7 @@ from app import app
 import pymysql as mdb
 import os
 import mysql_connector
+from time import strftime, strptime
 
 passwd = os.environ['MYSQL_PASSWORD']
 db = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
@@ -28,7 +29,8 @@ for i, result in enumerate(query_results):
 					  'defaultProb': result[5],
 					  'serviceFeeRate':result[6],
 					  'installment':result[7],
-					  'grade': result[9],
+					  'grade': result[8],
+					  'subgrade':result[9],
 					  'empLength':result[10],
 					  'homeOwnership':result[11],
 					  'annualInc': result[12],
@@ -71,7 +73,9 @@ for i, result in enumerate(query_results):
 					  'pred_roi':result[89],
 					  'pred_default_time_error':result[90],
 					  'pred_default_error':result[91],
-					  'pred_roi_error':result[92]})
+					  'pred_roi_error':result[92],
+					  'pred_prepaid':result[93],
+					  'pred_prepaid_error':result[94]})
 for i, loan in enumerate(loans):
 	if loan['pred_paid'] > 0.5:
 		loans[i]['pred_default_time'] = '-'
@@ -82,19 +86,36 @@ for i, loan in enumerate(loans):
 	except ValueError:
 		pass
 	try:
-		loans[i]['pred_default_time_error'] = "%.2f" %float(loans[i]['pred_default_time_error'])
+		loans[i]['pred_default_time_error'] = "%i" %float(loans[i]['pred_default_time_error'])
 	except ValueError:
 		pass
 	try:
 		loans[i]['pred_default_error'] = "%.2f" %float(loans[i]['pred_default_error'])
 	except ValueError:
 		pass
+	try:
+		loans[i]['pred_roi'] = "%.2f" %(float(loans[i]['pred_roi'])*100.0)
+	except ValueError:
+		pass
+	#format dates
+	for col in ['asOfDate', 'acceptD', 'expD', 'listD', 'creditPullD', 
+				'reviewStatusD', 'ilExpD', 'earliestCrLine']:
+		try:
+			loans[i][col] = strptime(loans[i][col], "%Y-%m-%dT%H:%M:%S.")
+			loans[i][col] = strftime("%d %b %Y", loans[i][col])
+		except ValueError:
+			pass
+
 
 
 @app.route('/')
 @app.route('/index')
 def index():
-	return render_template("index.html",
+	return render_template("index.html", loans=loans)
+
+@app.route('/loans')
+def show_loans():
+	return render_template("loans.html",
 				loans=loans)
 
 @app.route('/presentation')
@@ -103,6 +124,38 @@ def presentation():
 #AJAX functions
 
 #return all default probabilities
+@app.route('/loan_recommendation')
+def loan_recommendation():
+	grade = request.args.get('grade', 'A', type=str)
+	prev_loan_id = request.args.get('prev_loan_id', 0, type=int)
+	
+	loans_sorted_roi = sorted(loans, key=lambda k: -float(k['pred_roi']))
+	loans_sorted_roi = [x for x in loans_sorted_roi if x['grade'] == grade]
+
+	best_loan = loans_sorted_roi[0]
+	if prev_loan_id != 0:
+		#loop through loans and take the next one in sequence
+		for i in range(len(loans_sorted_roi)):
+			if loans_sorted_roi[i]['id'] == prev_loan_id:
+				best_loan = loans_sorted_roi[i+1]
+
+
+
+	# possible_loans = []
+	# for loan in loans:
+	# 	#take the first character because loan['grade'] is in the form "A3"
+	# 	if loan['grade'][:1] == grade:
+	# 		possible_loans.append(loan)
+	# best_loan = possible_loans[0]
+	# for loan in possible_loans:
+	# 	if loan['pred_roi'] > best_loan['pred_roi']:
+	# 		best_loan = loan
+	# print best_loan['id'], best_loan['pred_roi']
+	return jsonify(loan=best_loan)
+	
+
+
+
 @app.route('/default_prob')
 def get_default_prob():
 	index = []

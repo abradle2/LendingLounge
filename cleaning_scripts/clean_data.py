@@ -99,7 +99,7 @@ print loanData['last_pymnt_d'].unique()
 
 loanData['issue_d'] = [datetime.strptime(str(x), '%b-%Y') for x in loanData['issue_d']]
 loanData['last_pymnt_d'] = [datetime.strptime(str(x), '%b-%Y') for x in loanData['last_pymnt_d']]
-days_active = [(loanData['last_pymnt_d'][i] - loanData['issue_d'][i]).days for i in range(len(loanData))]
+days_active = min([(loanData['last_pymnt_d'][i] - loanData['issue_d'][i]).days for i in range(len(loanData))], 1096)
 loanData['days_to_zero_dollars'] = days_active
 
 
@@ -299,11 +299,11 @@ loanData.index = range(len(loanData))
 
 ##Pickle the dataframe
 print "pickling"
-f = open('data.pickle', 'wb')
+f = open('pickles/data.pickle', 'wb')
 pickle.dump(loanData, f)
 f.close()
 
-
+'''
 ##Writing cleaned data to the database
 col_string = ""
 for col in loanData.columns:
@@ -341,6 +341,6 @@ for i in range(len(loanData)-1):
 		print loanData.iloc[i]
 	
 
-
+'''
 mysql.disconnect()
 

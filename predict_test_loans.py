@@ -54,7 +54,7 @@ class Predictor():
     passwd = credentials['mysql']['password']
     self.con = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
 
-    sql_query = "SELECT * FROM listed_loans;"
+    sql_query = "SELECT * FROM test_loans;"
     self.loanData = sql.read_sql(sql_query, self.con)
 
   def load_classifiers(self):
@@ -484,23 +484,24 @@ class Predictor():
       std_regr = np.std(preds_regr)
       self.prediction_regr.append(mean_regr)
       self.error_regr.append(std_regr)
+    print self.error_clf
+    print len(self.error_clf)
 
 
   def calculate_roi(self):
     #Calculate expected ROI
-    #!Only valid for 36 month term loans
-    print "calculating ROI"
     self.roi = []
-    for index, pred in enumerate(self.prediction_clf_0):
+    for index, pred in enumerate(self.prediction_regr):
+        income = 0
         installment = self.listedLoanData['installment'][index]  
-        loan_amount = self.listedLoanData['loanAmount'][index]
-        prob_default = self.prediction_clf_0[index]
-        prob_paid = self.prediction_clf_1[index]
-        mths_to_default = float(self.prediction_regr[index])/30.0
+        loanAmount = self.listedLoanData['loanAmount'][index]
+        mths_till_default = 36
+        if self.prediction_clf_1[index] < 0.7:
+            mths_till_default = int(pred/30)
+        for i in range(0, mths_till_default):
+            income += installment
+        self.roi.append(income/loanAmount)
 
-        revenue_i = (36 * installment * prob_paid) + (mths_to_default * installment * prob_default) - loan_amount
-        roi_i = revenue_i / loan_amount
-        self.roi.append(roi_i)
   def upload_to_db(self):
     ##Upload predicted default times to database
     for i, val in enumerate(self.prediction_regr):
@@ -529,7 +530,3 @@ class Predictor():
     self.cur.close()
 
 p = Predictor()
-
-
-
-

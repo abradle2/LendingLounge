@@ -1,172 +1,134 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="row">
-    <div class="col-lg-12" id="d3-graph-div">
-        <div class="panel panel-default">
-            
-            <div class="panel-body">
-                <div id="d3-chart-left" class="d3-chart">
-                    <div id="tooltip-d3-chart-left" class="hidden">
-                        <p>Loan <span id="tooltip-id"></span></p>
-                        <p><span id="tooltip-value"></span></p>
-                    </div>
-                </div>
-                <div id="d3-chart-right" class="d3-chart">
-                    <div id="tooltip-d3-chart-right" class="hidden">
-                        <p>Loan <span id="tooltip-id"></span></p>
-                        <p><span id="tooltip-value"></span> days</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 <div class="row">
-    <div class="col-lg-12" id="graph-div">
-        <div class="panel panel-default">
-            
-            <div class="panel-body">
-                <div id="default-prob-chart"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-12" id="graph-div-2">
-        <div class="panel panel-default">
-            
-            <div class="panel-body">
-                <div id="roi-chart"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-lg-4" id="loans-info">
-        <div>
-            <div class="panel-heading">
-                <h3 class="panel-title">Loans Currently Available on the Lending Club Marketplace</h3>
-            </div>
-            <div id="selectors">
-                <div id="int-rate" class="selector-individual">
-                    <h4>Interest Rate</h4>
-                    <div id="int-rate-slider" class="slider"></div>
-                    <input type="text" id="int-rate-value" readonly>
+    <div class="col-lg-12">
+        <div class="panel-default">
+            <div class="panel-body" id="index-main-left">
+                <h1>choose a grade</h1>
+                <div id="grade-btns">
+                    <button class="btn btn-primary grade-btn" id="A-btn">grade A</button>
+                    <button class="btn btn-info grade-btn" id="B-btn">grade B</button>
+                    <button class="btn btn-success grade-btn" id="C-btn">grade C</button>
+                    <a href="./loans"><button class="btn btn-default grade-btn" id="loans-btn">Explore all loans</button></a>
                 </div>
-                <div id="est-default" class="selector-individual">
-                    <h4>Prob. of Default</h4>
-                    <div id="est-default-slider" class="slider"></div>
-                    <input type="text" id="est-default-value" readonly>
+                <div id="index-main-left-content">
+                    
+                </div> <!-- index-main-left-content -->
+                <div class="center" id="show-more-div">
+                    <h1><span class="glyphicon glyphicon-chevron-down hidden" id="more-loans"></span></h1>
                 </div>
-
             </div>
-            <div class="panel-body">
-                <div class="loan" id="loans-left">
-                    <table id="topTable" class="tablesorter" cellspacing=1> 
-                        <thead> 
-                        <tr>
-                            <th></th> 
-                            <th>Grade</th> 
-                            <th>Interest Rate</th> 
-                            <th>Amount</th> 
-                            <th>Probability of Default</th>
-                            <th>Expected Days to Default</th>
-                        </tr> 
-                        </thead> 
-                        <tbody>
-                        {% for loan in loans %}
-                        <tr class="loan-tr tr-active" id="{{loan['id']}}"> 
-                            <td>{{loan['index']}}</td> 
-                            <td>{{loan['grade']}}</td> 
-                            <td>{{loan['intRate']}}%</td> 
-                            <td>${{loan['loanAmnt']}}0</td>
-                            <td>{{loan['pred_default']}} &#177; {{loan['pred_default_error']}}</td>
-                            <td>{{loan['pred_default_time']}} &#177; {{loan['pred_default_time_error']}}</td> 
-                        </tr>
-                        {% endfor %}
-                        </tbody> 
-                    </table>
-                    <div id="hidden">
-                        <div class="panel panel-default" id="loan-detail">
-                        	<div class="loan-detail" id="loan-detail-borrower">
-                        		<h3>Borrower <span id="loan-borrowerId">h{{loans[1]['memberId']}}</span></h3>
-                        		<div class="loan-detail-left">
-	                        		<ul>
-	                        			<li>Loan Submitted: <b><span id="loan-acceptD">{{loans[0]['acceptD']}}</span></b></li>
-	                        			<li>Monthly Payment: $<b><span id="loan-installment">{{loans[0]['installment']}}</span></b></li>
-	                        		</ul>
-                        		</div>
-                        		<div class="loan-detail-right">
-	                        		<ul>
-	                        			<li>Review Status: <b><span id="loan-reviewStatus">{{loans[0]['reviewStatus']}}</span></b></li>
-	                        			<li>Loan ID: <b><span id="loan-id">{{loans[0]['id']}}</span></b></li>
-	                        		</ul>
-                        		</div>
-                        	</div>
-                        	<div class="loan-detail" id="loan-detail-borrower-profile">
-                        		<h3>Borrower Profile</h3>
-                        		<div class="loan-detail-left">
-	                        		<ul>
-	                        			<li>Gross Income: <b>$<span id="loan-annualInc">{{loans[0]['annualInc']}}</span></b></li>
-	                        			<li>Home Ownership: <b><span id="loan-homeOwnership">{{loans[0]['homeOwnership']}}</span></b></li>
-	                        			<li>Length of Employment: <b><span id="loan-empLength">{{loans[0]['empLength']}}</span> years</b></li>
-	                        		</ul>
-	                        	</div>
-	                        	<div class="loan-detail-right">
-	                        		<ul>
-	                        			<li>Job Title: <b><span id="loan-occupation">{{loans[0]['occupation']}}</span></b></li>
-	                        			<li>Location: <b><span id="loan-location">{{loans[0]['addrZip']}}, {{loans[0]['addrState']}}</span></b></li>
-	                        			<li>Debt-to-Income (DTI): <b><span id="loan-dti">{{loans[0]['dti']}}</span></b></li>
-	                        		</ul>
-	                        	</div>
-                        	</div>
-                        	<div class="loan-detail" id="loan-detail-borrower-credit">
-                        		<h3>Borrower Credit History</h3>
-                        		<div class="loan-detail-left">
-	                        		<ul>
-	                        			<li>Credit Score Range: <b><span id="loan-ficoRange">{{loans[0]['ficoRangeLow']}} - {{loans[0]['ficoRangeHigh']}}</span></b></li>
-	                        			<li>Earliest Credit Line: <b><span id="loan-earliestCrLine">{{loans[0]['earliestCrLine']}}</span></b></li>
-	                        			<li>Open Credit Lines: <b><span id="loan-openAccts">{{loans[0]['openAccts']}}</span></b></li>
-	                        			<li>Total Credit Lines: <b><span id="loan-totalAcc">{{loans[0]['totalAcc']}}</span></b></li>
-	                        			<li>Revolving Card Balance: <b>$<span id="loan-revolBal">{{loans[0]['revolBal']}}</span></b></li>
-	                        			<li>Revolving Line Utilization: <b><span id="loan-revolUtil">{{loans[0]['revolUtil']}}</span>%</b></li>
-	                        			<li>Inquiries in Last 6 Months: <b><span id="loan-inqLast6Mths">{{loans[0]['inqLast6Mths']}}</span></b></li>
-	                        			<li>Accounts Now Delinquent: <b><span id="loan-accNowDelinq">{{loans[0]['accNowDelinq']}}</span></b></li>
-	                        		</ul>
-	                        	</div>
-	                        	<div class="loan-detail-right">
-	                        		<ul>
-	                        			<li>Delinquent Amount: <b>$<span id="loan-delinqAmnt">{{loans[0]['delinqAmnt']}}</span></b></li>
-	                        			<li>Delinquencies (last 2 years): <b><span id="loan-delinq2Yrs">{{loans[0]['delinq2Yrs']}}</span></b></li>
-	                        			<li>Months Since Last delinquency: <b><span id="loan-mthsSinceLastDelinq">{{loans[0]['mthsSinceLastDelinq']}}</span></b></li>
-	                        			<li>Public Records on File: <b><span id="loan-pubRec">{{loans[0]['pubRec']}}</span></b></li>
-	                        			<li>Months Since Last Record: <b><span id="mthsSinceLastRecord">{{loans[0]['mthsSinceLastRecord']}}</span></b></li>
-	                        			<li>Months Since Last Major Derogatory: <b><span id="loan-mthsSinceLastMajorDerog">{{loans[0]['mthsSinceLastMajorDerog']}}</span></b></li>
-	                        			<li>Collections Excluding Medical: <b>$<span id="loan-collections12MthsExMed">{{loans[0]['collections12MthsExMed']}}</span></b></li>
-	                        			<li><br/></li>
-	                        		</ul>
-	                        	</div>
-                        	</div>
-                        	<div class="loan-detail" id="loan-detail-loan-description">
-                        		<h3>Loan Description</h3>
-                        		<ul>
-                        			<li><span id="loan-description">{{loans[0]['description']}}</span></li>
-                        		</ul>
-                        	</div>
-                        	<div class="loan-detail" id="loan-detail-analysis">
-                        		<h3>Analysis</h3>
-                        		
-                        	</div>
+            
+            <div class="panel-default" id="index-main-right">
+                <div class="panel-body hidden" id="index-loan-detail">
+                    <div class="loan-detail" id="loan-detail-borrower">
+                        <div class="center">
+                            <h2>Loan <span id="index-loan-id"></span></h2>
                         </div>
-                    </div> <!-- /.hidden -->
-                </div>
-                <img id="needle" width="100" src="../static/images/sewing_needle.png" />    
+                        <h3>Borrower <span id="index-loan-borrowerId">{{loans[1]['memberId']}}</span></h3>
+                        <div class="loan-detail-left">
+                            <ul>
+                                <li>Loan Submitted: <b><span id="index-loan-acceptD">{{loans[0]['acceptD']}}</span></b></li>
+                                
+                            </ul>
+                        </div>
+                        <div class="loan-detail-right">
+                            <ul>
+                                <li>Review Status: <b><span id="index-loan-reviewStatus">{{loans[0]['reviewStatus']}}</span></b></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="loan-detail" id="loan-detail-borrower-profile">
+                        <h3>Borrower Profile</h3>
+                        <div class="loan-detail-left">
+                            <ul>
+                                <li>Gross Income: <b>$<span id="index-loan-annualInc">{{loans[0]['annualInc']}}</span></b></li>
+                                <li>Home Ownership: <b><span id="index-loan-homeOwnership">{{loans[0]['homeOwnership']}}</span></b></li>
+                                <li>Length of Employment: <b><span id="index-loan-empLength">{{loans[0]['empLength']}}</span> years</b></li>
+                            </ul>
+                        </div>
+                        <div class="loan-detail-right">
+                            <ul>
+                                <li>Job Title: <b><span id="index-loan-occupation">{{loans[0]['occupation']}}</span></b></li>
+                                <li>Location: <b><span id="index-loan-location">{{loans[0]['addrZip']}}, {{loans[0]['addrState']}}</span></b></li>
+                                <li>Debt-to-Income (DTI): <b><span id="index-loan-dti">{{loans[0]['dti']}}</span></b></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="loan-detail" id="loan-detail-borrower-credit">
+                        <h3>Borrower Credit History</h3>
+                        <div class="loan-detail-left">
+                            <ul>
+                                <li>Credit Score Range: <b><span id="index-loan-ficoRange">{{loans[0]['ficoRangeLow']}} - {{loans[0]['ficoRangeHigh']}}</span></b></li>
+                                <li>Earliest Credit Line: <b><span id="index-loan-earliestCrLine">{{loans[0]['earliestCrLine']}}</span></b></li>
+                                <li>Open Credit Lines: <b><span id="index-loan-openAccts">{{loans[0]['openAccts']}}</span></b></li>
+                                <li>Total Credit Lines: <b><span id="index-loan-totalAcc">{{loans[0]['totalAcc']}}</span></b></li>
+                                <li>Revolving Card Balance: <b>$<span id="index-loan-revolBal">{{loans[0]['revolBal']}}</span></b></li>
+                                <li>Revolving Line Utilization: <b><span id="index-loan-revolUtil">{{loans[0]['revolUtil']}}</span>%</b></li>
+                                <li>Inquiries in Last 6 Months: <b><span id="index-loan-inqLast6Mths">{{loans[0]['inqLast6Mths']}}</span></b></li>
+                                <li>Accounts Now Delinquent: <b><span id="index-loan-accNowDelinq">{{loans[0]['accNowDelinq']}}</span></b></li>
+                            </ul>
+                        </div>
+                        <div class="loan-detail-right">
+                            <ul>
+                                <li>Delinquent Amount: <b>$<span id="index-loan-delinqAmnt">{{loans[0]['delinqAmnt']}}</span></b></li>
+                                <li>Delinquencies (last 2 years): <b><span id="index-loan-delinq2Yrs">{{loans[0]['delinq2Yrs']}}</span></b></li>
+                                <li>Months Since Last delinquency: <b><span id="index-loan-mthsSinceLastDelinq">{{loans[0]['mthsSinceLastDelinq']}}</span></b></li>
+                                <li>Public Records on File: <b><span id="index-loan-pubRec">{{loans[0]['pubRec']}}</span></b></li>
+                                <li>Months Since Last Record: <b><span id="index-loan-mthsSinceLastRecord">{{loans[0]['mthsSinceLastRecord']}}</span></b></li>
+                                <li>Months Since Last Major Derogatory: <b><span id="index-loan-mthsSinceLastMajorDerog">{{loans[0]['mthsSinceLastMajorDerog']}}</span></b></li>
+                                <li>Collections Excluding Medical: <b>$<span id="index-loan-collections12MthsExMed">{{loans[0]['collections12MthsExMed']}}</span></b></li>
+                                <li><br/></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="loan-detail" id="loan-detail-loan-description">
+                        <h3>Loan Description</h3>
+                        <ul>
+                            <li><span id="index-loan-description">{{loans[0]['description']}}</span></li>
+                        </ul>
+                    </div>
+                    <div class="loan-detail" id="loan-detail-analysis">
+                        <h3>Analysis</h3>
+                        <ul>
+                            <li>Probability of default: <b><span id="index-loan-default-prob"></span> &#177; <span id="index-loan-default-prob-error"></span></b></li>
+                            <li>Probability of prepay: <b><span id="index-loan-prepaid-prob"></span> &#177; <span id="index-loan-prepaid-prob-error"></span></b></li>
+                        </ul>
+                        
+                    </div>
+                </div> <!-- loan-detail -->
             </div>
         </div>
     </div>
-    
 </div>
-<!-- /.row -->
+<div class="hidden">
+    <div class="loan-thumbnail" id="loan-thumbnail-div">
+        <img src="../static/images/x_black.png" class="x" width="36" height="36">
+        <div id="loan-thumbnail-content">
+            <div class="center">
+                <h3>Predicted ROI: <b><span id="loan-thumbnail-roi"></span>%</b></h3>
+            </div>
+            <div id="loan-thumbnail-left">
+                <ul>
+                    <li>Grade <b><span id="loan-thumbnail-grade"></span></b></li>
+                    <li>Loan <b><span id="loan-thumbnail-id">{{loans[0]['id']}}</span></b></li>
+                    <li>Loan Amount: <b>$<span id="loan-thumbnail-amount"></span></b></li>
+                    
+                </ul>
+            </div>
+            <div id="loan-thumbnail-right">
+                <ul>
+                    <li>Interst Rate: <b><span id="loan-thumbnail-int-rate"></span></b>%</li>
+                    <li>Monthly Payment: <b>$<span id="loan-thumbnail-installment"></span></b></li>
+                    <li>Term: <b><span id="loan-thumbnail-term"></span> months</b></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript" src="../static/js/index.js"/></script>
 {% endblock %}

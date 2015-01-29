@@ -108,20 +108,6 @@ ul.alert-dropdown {
 
 
 
-/* Flot Chart Containers */
-
-.flot-chart {
-    display: block;
-    height: 400px;
-}
-
-.flot-chart-content {
-    width: 100%;
-    height: 100%;
-}
-
-/* Custom Colored Panels */
-
 .huge {
     font-size: 40px;
 }
@@ -182,12 +168,95 @@ ul.alert-dropdown {
 
 /* Custom CSS Added by Aaron */
 
+li {
+    list-style-type: none
+}
+
+/* index.html */
+
+#index-main-left, #index-main-right {
+    width: 50%;
+    float: left;
+    background-color: white;
+}
+
+#index-main-left-content {
+    width: 100%;
+
+}
+
+.loan-thumbnail {
+    width: 100%;
+    float: left;
+    min-height: 100px;
+    background-color: #eaeaea;
+    border: 1px solid black;
+    margin-top: 20px;
+    padding-bottom: 20px;
+}
+
+.x {
+    position: relative;
+    top: -18px;
+    left: -18px;
+}
+
+#loan-thumbnail-content {
+    width: 100%;
+}
+
+#loan-thumbnail-left, #loan-thumbnail-right {
+    width: 50%;
+    float: left;
+    font-size: 1.3em;
+}
+
+#loan-thumbnail-left li, #loan-thumbnail-right li {
+    list-style: none;
+}
+
+.loan-thumbnail-highlighted {
+    background-color: #8dbdd8;
+}
+
+#grade-btns {
+    width: 100%;
+}
+
+.grade-btn {
+    width: 25%;
+    float: left;
+}
+
+#index-loan-detail {
+
+}
+
+
+/* loans.html */
+
+#loans-top {
+    width: 100%;
+}
+
+#loans-left, #loans-right {
+    width: 50%;
+    float: left;
+}
+
+
+
 #loans-info {
     width: 100%;
 }
 
 #graph-div, #graph-div-2 {
     width: 50%;
+}
+
+.graph-div {
+    width: 100%;
+    float: left;
 }
 
 .single-loan li {
@@ -197,11 +266,6 @@ ul.alert-dropdown {
 #loan-detail {
     width: 100%;
     padding: 10px;
-}
-
-.loan-detail li {
-    list-style-type: none
-    width: 100%;
 }
 
 .loan-detail h3 {
@@ -249,6 +313,11 @@ ul.alert-dropdown {
     width: 50%;
     float: left;
 }
+
+.center {
+    text-align: center;
+}
+
 
 
 /*
