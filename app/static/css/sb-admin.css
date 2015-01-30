@@ -354,7 +354,7 @@ li {
     padding: 10px;
 }
 
-.data-text {
+.data-text, .data-story-top {
     font-size: 1.4em;
 }
 

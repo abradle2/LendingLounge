@@ -186,4 +186,33 @@ $(document).ready(function () {
             data: [0.53, 0.56, 0.59, 0.58, 0.58, 0.59, 0.58, 0.58, 0.59, 0.59, 0.59, 0.59, 0.59]
         }]
     });
+
+    //case study plot
+    $('#case-study-plot').highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'ROI for Various Investment Strategies'
+        },
+        xAxis: {
+            categories: ['Random', 'Lowest DTI', 'Highest Int Rate', 'Loan Quickr Pickr']
+        },
+        yAxis: {
+            title: {
+                text: 'Actual ROI (%)',
+                style: {
+                    fontSize: '20px'
+                }
+            }
+        },
+
+        legend: {
+            enabled: false
+        },
+        series: [{
+            //name: 'Days Since Loan Origination',
+            data: [0.0, 4.4, 2.8, 9.3]
+        }]
+    });
 });
