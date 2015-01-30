@@ -6,6 +6,7 @@ import pymysql as mdb
 import os
 import mysql_connector
 from time import strftime, strptime
+import numpy as np
 
 passwd = os.environ['MYSQL_PASSWORD']
 db = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
@@ -76,7 +77,18 @@ for i, result in enumerate(query_results):
 					  'pred_roi_error':result[92],
 					  'pred_prepaid':result[93],
 					  'pred_prepaid_error':result[94]})
+#aggregate values
+mean_roi = 0
+mean_default_prob = 0
+mean_prepaid_prob = 0
+mean_loan_amount = 0
+mean_int_rate = 0
 for i, loan in enumerate(loans):
+	mean_roi += loan['pred_roi']
+	mean_default_prob += loan['pred_default']
+	#mean_prepaid_prob += loan['pred_prepaid']
+	mean_loan_amount += loan['loanAmnt']
+	mean_int_rate += loan['intRate']
 	if loan['pred_paid'] > 0.5:
 		loans[i]['pred_default_time'] = '-'
 		loans[i]['pred_default_time_error'] = '-'
@@ -105,7 +117,12 @@ for i, loan in enumerate(loans):
 			loans[i][col] = strftime("%d %b %Y", loans[i][col])
 		except ValueError:
 			pass
-
+	loan['addrState'] = loan['addrState'].strip()
+mean_roi = mean_roi / len(loans)
+mean_default_prob = mean_default_prob / len(loans)
+#mean_prepaid_prob = mean_prepaid_prob / len(mean_prepaid_prob)
+mean_loan_amount = mean_loan_amount / len(loans)
+mean_int_rate = mean_int_rate / len(loans)
 
 
 @app.route('/')
@@ -116,11 +133,19 @@ def index():
 @app.route('/loans')
 def show_loans():
 	return render_template("loans.html",
-				loans=loans)
+				loans=loans,
+				mean_roi=mean_roi,
+				mean_default_prob=mean_default_prob,
+				mean_loan_amount=mean_loan_amount,
+				mean_int_rate=mean_int_rate)
 
 @app.route('/presentation')
 def presentation():
 	return render_template("presentation.html")
+
+@app.route('/data_story')
+def data_story():
+	return render_template("data_story.html")
 #AJAX functions
 
 #return all default probabilities
@@ -156,21 +181,19 @@ def loan_recommendation():
 
 
 
-@app.route('/default_prob')
-def get_default_prob():
-	index = []
+@app.route('/roi')
+def get_roi():
+	roi = []
 	default_prob = []
 	loan_id = []
-	pred_default_time = []
 	for loan in loans:
-		index.append(loan['index']) 
+		roi.append(loan['pred_roi'])
 		default_prob.append(loan['pred_default'])
 		loan_id.append(loan['id'])
-		pred_default_time.append(loan['pred_default_time'])
-	return jsonify(index=index,
+		
+	return jsonify(roi=roi,
 				   default_prob=default_prob, 
-				   loan_id=loan_id, 
-				   pred_default_time=pred_default_time)
+				   loan_id=loan_id)
 
 #return fields for one loan
 @app.route('/loan')
@@ -198,4 +221,3 @@ def get_loans_filtered():
 			if predDefault >= est_default_min and predDefault <= est_default_max:
 				loans_to_show.append(loan)
 	return jsonify(loans = loans_to_show)
-

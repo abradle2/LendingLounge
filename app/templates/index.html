@@ -1,15 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-
+<div class="row center" id="index-head">
+    
+    <h1>Find the best P2P loans on <img src="../static/images/lc_logo.png" width="250" /></h1>
+</div>
 <div class="row">
     <div class="col-lg-12">
         <div class="panel-default">
             <div class="panel-body" id="index-main-left">
-                <h1>choose a grade</h1>
+                <h2>To get started, choose a grade</h2>
                 <div id="grade-btns">
-                    <button class="btn btn-primary grade-btn" id="A-btn">grade A</button>
-                    <button class="btn btn-info grade-btn" id="B-btn">grade B</button>
-                    <button class="btn btn-success grade-btn" id="C-btn">grade C</button>
+                    <button class="btn btn-success grade-btn" id="A-btn">Grade A</button>
+                    <button class="btn btn-info grade-btn" id="B-btn">Grade B</button>
+                    <button class="btn btn-primary grade-btn" id="C-btn">Grade C</button>
                     <a href="./loans"><button class="btn btn-default grade-btn" id="loans-btn">Explore all loans</button></a>
                 </div>
                 <div id="index-main-left-content">
@@ -105,30 +108,35 @@
 <div class="hidden">
     <div class="loan-thumbnail" id="loan-thumbnail-div">
         <img src="../static/images/x_black.png" class="x" width="36" height="36">
-        <div id="loan-thumbnail-content">
-            <div class="center">
-                <h3>Predicted ROI: <b><span id="loan-thumbnail-roi"></span>%</b></h3>
+        <div class="wrapper">
+            <div id="map" class="map"></div>
+            <div id="loan-thumbnail-content">
+                <div id="roi-header">
+                    <h2>Predicted ROI: <b><span id="loan-thumbnail-roi"></span>%</b></h2>
+                </div>
+                <div id="loan-thumbnail-left">
+                    <ul>
+                        <li>Grade <b><span id="loan-thumbnail-grade"></span></b></li>
+                        <li>Loan <b><span id="loan-thumbnail-id">{{loans[0]['id']}}</span></b></li>
+                        <li>Loan Amount: <b>$<span id="loan-thumbnail-amount"></span></b></li>
+                        
+                    </ul>
+                </div>
+                <div id="loan-thumbnail-right">
+                    <ul>
+                        <li>Interest Rate: <b><span id="loan-thumbnail-int-rate"></span></b>%</li>
+                        <li>Monthly Payment: <b>$<span id="loan-thumbnail-installment"></span></b></li>
+                        <li>Term: <b><span id="loan-thumbnail-term"></span> months</b></li>
+                    </ul>
+                </div>
             </div>
-            <div id="loan-thumbnail-left">
-                <ul>
-                    <li>Grade <b><span id="loan-thumbnail-grade"></span></b></li>
-                    <li>Loan <b><span id="loan-thumbnail-id">{{loans[0]['id']}}</span></b></li>
-                    <li>Loan Amount: <b>$<span id="loan-thumbnail-amount"></span></b></li>
-                    
-                </ul>
-            </div>
-            <div id="loan-thumbnail-right">
-                <ul>
-                    <li>Interst Rate: <b><span id="loan-thumbnail-int-rate"></span></b>%</li>
-                    <li>Monthly Payment: <b>$<span id="loan-thumbnail-installment"></span></b></li>
-                    <li>Term: <b><span id="loan-thumbnail-term"></span> months</b></li>
-                </ul>
-            </div>
-        </div>
+        </div><!-- /.wrapper -->
     </div>
 </div>
 
 {% endblock %}
 {% block scripts %}
+<script type="text/javascript" src="../static/js/topojson.js"/></script>
+<script type="text/javascript" src="../static/js/datamaps.usa.min.js"/></script>
 <script type="text/javascript" src="../static/js/index.js"/></script>
 {% endblock %}

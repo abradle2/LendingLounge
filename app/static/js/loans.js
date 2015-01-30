@@ -187,10 +187,15 @@ function color_table_rows_on_hover() {
     $('.loan-tr')
         .mouseenter(function() {
              $(this).children().css('background-color', '#8dbdd8');
+             console.log($(this).attr("id"));
+             //color plot data point on hover
+             $("#node_" + $(this).attr("id")).attr("r", 15);
     })
       .mouseleave(function() {
              $(this).children().css('background-color', 'white');
+             $("#node_" + $(this).attr("id")).attr("r", 6);
     });
+
 };
 
 function color_table_rows_on_click() {
@@ -304,9 +309,9 @@ function update_table(loans) {
 function draw_d3_chart(container, data) {
     //plots data in blue, data_grey in grey
     //data_grey has no hover or tooltip
-    var w = 500;
-    var h = 250;
-    var padding = 40;
+    var w = 600;
+    var h = 300;
+    var padding = 60;
 
     //delete the current graph if it exists
     $("#" + container + " svg").remove();
@@ -314,21 +319,17 @@ function draw_d3_chart(container, data) {
     data = data.filter(function(el) {
         return !isNaN(parseFloat(el[1]));
     });
-
-    //Find max x value for axis scaling
-    var max_x = parseFloat(data[0][0]);
-    for (i in data) {
-        var x_cur = parseFloat(data[i][0]);
-        if (x_cur > max_x) {max_x = x_cur};
-    };
+ 
     var xScale = d3.scale.linear()
-                         .domain([1, max_x+1])
+                         .domain([d3.min(data, function(d) {return parseFloat(d[1]);}),
+                                  d3.max(data, function(d) {return parseFloat(d[1]);})])
                          .range([padding, w - padding]);
     var yScale = d3.scale.linear()
-                         .domain([0, d3.max(data, function(d) {return d[1];})])
+                         .domain([d3.min(data, function(d) {return parseFloat(d[2]);}),
+                                  d3.max(data, function(d) {return parseFloat(d[2]);})])
                          .range([h - padding, padding]);
     var rScale = d3.scale.sqrt()
-                         .domain([0, d3.max(data, function(d) {return d[1];})])
+                         .domain([0, d3.max(data, function(d) {return d[2];})])
                          .range([2, 8]);
 
     var svg = d3.select("#" + container)
@@ -365,45 +366,51 @@ function draw_d3_chart(container, data) {
 
     //axis labels
     svg.append("text")
-      .attr("x", w/2)
-      .attr("y", h)
+      .attr("x", (w-2*padding)/2-50)
+      .attr("y", h-5)
       .attr("class", "axis_label")
-      .text("Loan ID");
+      .text("Default Probability (%)");
     svg.append("text")
-      .attr("y", 10)
-      .attr("x", -50)
+      .attr("y", 15)
+      .attr("x", -(h-2*padding)/2)
       .attr("class", "rotate")
+      .classed("axis_label", true)
       .attr("text-anchor", "end")
-      .text("Est. Default Probability");
+      .text("Estimated ROI (%)");
+    //title
+    svg.append("text")
+      .attr("x", (w-2*padding)/2-75)
+      .attr("y", 20)
+      .attr("class", "title")
+      .text("ROI vs Default Probability");
 
     //add blue data points
-    svg.selectAll("circle")
+    var circles = svg.selectAll("circle")
        .data(data)
        .enter()
        .append("circle")
        .attr({
-            cx : function(d) {return xScale(d[0]);},
-            cy : function(d) {return yScale(d[1]);},
-            r : 5,
+            cx : function(d) {return xScale(d[1]);},
+            cy : function(d) {return yScale(d[2]);},
+            r : 6,
             "class" : "blue_circle",
-            "fill" : function(d) {console.log(get_circle_color(d[2])); return get_circle_color(d[2]);},
+            "fill" : function(d) {return get_circle_color(d[2], d[3]);},
             "id" : function(d) {return "node_" + String(d[0]);}            
        })
        .on("click", function(d) {
             console.log(d);
         })
        .on("mouseover", function(d) {
-            if(d[2] == 1) {
-                var xPos = parseFloat(d3.select(this).attr("cx"));
-                var yPos = parseFloat(d3.select(this).attr("cy"))+40;
+            if(d[3] == 1) {
+
                 d3.select("#tooltip-" + container)
-                  .style("left", xPos + "px")
-                  .style("top", yPos + "px")
+                  .style("left", d3.event.pageX-20 + "px")
+                  .style("top", d3.event.pageY+30 + "px")
                   .select("#tooltip-id")
                   .text(d[0]);
                 d3.select("#tooltip-" + container)
-                  .select("#tooltip-value")
-                  .text(d[1]);
+                  .select("#tooltip-roi")
+                  .text(d[2]);
                 d3.select("#tooltip-" + container).classed("hidden", false);
                 d3.select(this)
                   .attr("r", 14)
@@ -413,26 +420,37 @@ function draw_d3_chart(container, data) {
        .on("mouseout", function() {
                 d3.select("#tooltip-" + container).classed("hidden", true);
                 d3.select(this)
-                  .attr("r", 5);
-    });
+                  .attr("r", 6);
+
+        });
        
-    function get_circle_color(i) {
-        if(i == 0) {
+    function get_circle_color(roi, active) {
+        if(active == 0) {
             return "#d3d3d3";
-        } else {
-            return "#7588FF"
+        } 
+        else {
+            //color points based on ROI
+            if(roi >= 0.5) {
+                return "green";
+            }
+            else if(roi < 0.5 && roi > -2.0) {
+                return "orange";
+            }
+            else {
+                return "red";    
+            }
+            
         }
     }
 };
 
 function get_data_ajax(blue_x_values) {
-    $.getJSON("./default_prob", function(json) {
-        var data_default = [];
-        var data_default_time = [];
+    $.getJSON("./roi", function(json) {
+        var data_roi = [];
         for (i in json['default_prob']) {
-            var default_prob = json['default_prob'][i];
-            var loan_id = parseFloat(json['index'][i]);
-            var pred_default_time = json['pred_default_time'][i];
+            var default_prob = json['default_prob'][i] * 100;
+            var loan_id = parseFloat(json['loan_id'][i]);
+            var roi = json['roi'][i];
             //var loan_id = parseInt(i)+1;  //keep graph aligned with table
             var active = 0;
             if(typeof(blue_x_values) == "undefined") {
@@ -441,11 +459,9 @@ function get_data_ajax(blue_x_values) {
             else if($.inArray(parseFloat(i)+1, blue_x_values) != -1) {
                 active = 1;
             }
-            data_default.push([loan_id, default_prob, active]);
-            data_default_time.push([loan_id, pred_default_time, active]);
+            data_roi.push([loan_id, default_prob, roi, active]);
         }
-        draw_d3_chart("d3-chart-left", data_default);
-        draw_d3_chart("d3-chart-right", data_default_time);    
+        draw_d3_chart("d3-chart-left", data_roi);   
         });
     };
 

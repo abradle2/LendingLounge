@@ -38,8 +38,6 @@ $(document).ready(function() {
 			$("#index-loan-detail").toggleClass("hidden", true);
 		}
 
-		console.log(loans_on_page);
-
 	});
 	$(".loan-thumbnail").click(function() {
 		reload_loan_detail($(this).attr("id"));
@@ -98,6 +96,7 @@ function load_loan() {
 	var prev_loan_id = loans_on_page[loans_on_page.length-1];
 	$.getJSON("./loan_recommendation", {'grade':grade_shown, 'prev_loan_id':prev_loan_id}, function(json) {
 		var loan_id = json['loan']['id'];
+		var state = json['loan']['addrState']
 		loans_on_page.push(loan_id)
 		var loan_clone = $("#loan-thumbnail-div").clone(true);
 		loan_clone.attr("id", loan_id);
@@ -113,7 +112,31 @@ function load_loan() {
 		loan_clone.find("#loan-thumbnail-term").text(json['loan']['term']);
 		//reload_loan_detail(loan_id);
 		num_loans_shown ++;
-		console.log(num_loans_shown);
+		//give map an id equal
+		var map_div_id = "map-" + loan_id
+		loan_clone.find("#map").attr("id", map_div_id);
+		
+		show_map(map_div_id, state);
 		$("#more-loans").toggleClass("hidden", false);
 	});
 };
+
+function show_map(el, state) {
+	console.log(el);
+	var winOH = '#0f00f0';
+	//this is super hacky but the only thing we could figure out
+	var map_code = "var map = new Datamap({ \
+		element: document.getElementById(el), \
+		scope: 'usa', \
+		fills: { \
+			defaultFill: '#D6D6D6', \
+			win: '#FF0000' \
+		}, \
+		data: {'" + state +"': { fillKey: 'win'} } \
+	});"
+	eval(map_code);
+	//hack to hide annoying tooltip
+	$(".datamaps-hoverover").css("opacity", "0");
+
+};
+
