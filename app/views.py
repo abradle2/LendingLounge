@@ -7,8 +7,13 @@ import os
 import mysql_connector
 from time import strftime, strptime
 import numpy as np
+import json
 
-passwd = os.environ['MYSQL_PASSWORD']
+#passwd = os.environ['MYSQL_PASSWORD']
+with open('credentials.json') as credentials_file:
+	credentials = json.load(credentials_file)
+
+passwd = credentials['mysql']['password']
 db = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
 
 with db:
