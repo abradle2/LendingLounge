@@ -13,7 +13,7 @@ with open('credentials.json') as credentials_file:
     credentials = json.load(credentials_file)
 
 passwd = credentials['mysql']['password']
-con = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
+con = mdb.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='insight', autocommit=True)
 
 features_defaults = [
 			"id",
