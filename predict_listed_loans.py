@@ -52,7 +52,7 @@ class Predictor():
     with open('credentials.json') as credentials_file:
       credentials = json.load(credentials_file)
     passwd = credentials['mysql']['password']
-    self.con = mdb.connect(host='127.0.0.1', port=3307, user='root', passwd=passwd, db='insight', autocommit=True)
+    self.con = mdb.connect(host='127.0.0.1', port=3306, user='root', passwd=passwd, db='insight', autocommit=True)
 
     sql_query = "SELECT * FROM listed_loans;"
     self.loanData = sql.read_sql(sql_query, self.con)
@@ -457,6 +457,7 @@ class Predictor():
     #arrays to hold final prediction values
     self.prediction_clf_0 = []
     self.prediction_clf_1 = []
+    self.prediction_clf_2 = []
     self.prediction_regr = []
     self.error_clf = []
     self.error_regr = []
@@ -472,12 +473,15 @@ class Predictor():
       #break up positive and negative probabilities for clf:
       preds_clf_0 = [x[0][0] for x in preds_clf]
       preds_clf_1 = [x[0][1] for x in preds_clf]
+      preds_clf_2 = [x[0][2] for x in preds_clf]
 
       mean_clf_0 = np.mean(preds_clf_0)
       mean_clf_1 = np.mean(preds_clf_1)
+      mean_clf_2 = np.mean(preds_clf_2)
       std_clf = np.std(preds_clf_0)
       self.prediction_clf_0.append(mean_clf_0)
       self.prediction_clf_1.append(mean_clf_1)
+      self.prediction_clf_2.append(mean_clf_2)
       self.error_clf.append(std_clf)
 
       mean_regr = np.mean(preds_regr)
@@ -489,18 +493,47 @@ class Predictor():
   def calculate_roi(self):
     #Calculate expected ROI
     #!Only valid for 36 month term loans
+    self.listedLoanData['principle_remaing_at_zero_dollars'] = 0
+    for index, loanId in enumerate(self.listedLoanData['id']):
+        loan = self.listedLoanData.iloc[index]
+        mths_to_zero_dollars = int(self.prediction_regr[index]/30.0)
+        int_rate = loan['intRate']/100.0
+        int_rate = int_rate/12.0 #monthly
+        installment = loan['installment']
+        p = loan['loanAmount']
+        for m in range(1, mths_to_zero_dollars+1):
+            p = p * (1 + int_rate) - installment
+        self.listedLoanData['principle_remaing_at_zero_dollars'].iloc[index] = p
     print "calculating ROI"
+
     self.roi = []
+    self.roi_error = []
     for index, pred in enumerate(self.prediction_clf_0):
         installment = self.listedLoanData['installment'][index]  
         loan_amount = self.listedLoanData['loanAmount'][index]
         prob_default = self.prediction_clf_0[index]
         prob_paid = self.prediction_clf_1[index]
-        mths_to_default = float(self.prediction_regr[index])/30.0
+        prob_prepaid = self.prediction_clf_2[index]
+        princple_remaining = self.listedLoanData['principle_remaing_at_zero_dollars'][index]
+        mths_to_zero_dollars = float(self.prediction_regr[index])/30.0
 
-        revenue_i = (36 * installment * prob_paid) + (mths_to_default * installment * prob_default) - loan_amount
+        revenue_i = (36 * installment * prob_paid) + (mths_to_zero_dollars * installment * prob_default) + ((mths_to_zero_dollars * installment + princple_remaining) * prob_prepaid) - loan_amount
         roi_i = revenue_i / loan_amount
         self.roi.append(roi_i)
+        #calculate roi error by propagating individual errors and adding in quadrature
+        paid_error = 36 * installment * self.error_clf[index] / loan_amount
+        default_error = (mths_to_zero_dollars * installment * self.error_clf[index]) / loan_amount
+        prepaid_error = (mths_to_zero_dollars * installment + princple_remaining) * self.error_clf[index] / loan_amount
+        months_error = installment * (prob_prepaid + prob_default) * self.error_clf[index] / loan_amount
+        roi_error_i = np.sqrt(paid_error ** 2 + 
+                              default_error ** 2 + 
+                              prepaid_error ** 2 + 
+                              months_error ** 2)
+        self.roi_error.append(roi_error_i)
+        print "default error: ", default_error
+        print "prepaid_error: ", prepaid_error
+        print "paid error: ", paid_error
+        print "months error: ", months_error
   def upload_to_db(self):
     ##Upload predicted default times to database
     for i, val in enumerate(self.prediction_regr):
@@ -523,6 +556,13 @@ class Predictor():
       self.cur.execute(sql_query)
       #roi
       sql_query = "UPDATE listed_loans SET pred_roi='%s' WHERE id='%s';" %(self.roi[i], self.listedLoanData['id'][i])
+      self.cur.execute(sql_query)
+      #roi error
+      sql_query = "UPDATE listed_loans SET pred_roi_error='%s' WHERE id='%s';" %(self.roi_error[i], self.listedLoanData['id'][i])
+      self.cur.execute(sql_query)
+    for i, val in enumerate(self.prediction_clf_2):
+      #prepaid prediction
+      sql_query = "UPDATE listed_loans SET pred_prepaid='%s' WHERE id='%s';" %(val, self.listedLoanData['id'][i])
       self.cur.execute(sql_query)
 
   def close_db_connection(self):
