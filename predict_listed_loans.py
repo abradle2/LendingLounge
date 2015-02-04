@@ -287,9 +287,9 @@ class Predictor():
     self.loanData['unemp_rate_6mths'] = 0
     self.loanData['unemp_rate_3mths'] = 0
     for i, loan in enumerate(self.loanData['id']):
-    	key_12mths = "%s%s%s" %(self.loanData['addrState'][i],
-    							(self.loanData['issue_year'][i]-1),
-    							self.loanData['issue_month'][i])
+    	# key_12mths = "%s%s%s" %(self.loanData['addrState'][i],
+    	# 						(self.loanData['issue_year'][i]-1),
+    	# 						self.loanData['issue_month'][i])
     	if self.loanData['issue_month'][i] <= 6:
     		key_6mths = "%s%s%s" %(self.loanData['addrState'][i],
     								(self.loanData['issue_year'][i]-1),
@@ -298,18 +298,18 @@ class Predictor():
     		key_6mths = "%s%s%s" %(self.loanData['addr_state'][i],
     								(self.loanData['issue_year'][i]),
     								self.loanData['issue_month'][i]-6)
-    	if self.loanData['issue_month'][i] <= 3:
-    		key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
-    								(self.loanData['issue_year'][i]-1),
-    								self.loanData['issue_month'][i]+3)
-    	else:
-    		key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
-    								(self.loanData['issue_year'][i]),
-    								self.loanData['issue_month'][i]-3)
+    	# if self.loanData['issue_month'][i] <= 3:
+    	# 	key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
+    	# 							(self.loanData['issue_year'][i]-1),
+    	# 							self.loanData['issue_month'][i]+3)
+    	# else:
+    	# 	key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
+    	# 							(self.loanData['issue_year'][i]),
+    	# 							self.loanData['issue_month'][i]-3)
     	try:
-    		self.loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
+    		# self.loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
     		self.loanData['unemp_rate_6mths'].iloc[i] = unemp_rate_dict[key_6mths]
-    		self.loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
+    		# self.loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
     	except KeyError:
     		print KeyError, "loan ", i
     		#self.loanData = self.loanData.drop(self.loanData.index[i])
@@ -433,9 +433,7 @@ class Predictor():
     'WY',
     'yrs_since_first_cr_line',
     'desc_length',
-    'unemp_rate_12mths',
     'unemp_rate_6mths',
-    'unemp_rate_3mths',
     'subGrade',
     'other',
     'install_frac_of_monthly_inc',
