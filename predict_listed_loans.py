@@ -60,7 +60,7 @@ class Predictor():
   def load_classifiers(self):
     self.regrs = []
     self.clfs = []
-    for i in range(0, 2):
+    for i in range(0, 10):
       rfr_file = './pickles/rfr_%s.pickle' %i
       rfc_file = './pickles/rfc_%s.pickle' %i
       print "loading rf classifiers %s" %i
@@ -287,9 +287,9 @@ class Predictor():
     self.loanData['unemp_rate_6mths'] = 0
     self.loanData['unemp_rate_3mths'] = 0
     for i, loan in enumerate(self.loanData['id']):
-    	# key_12mths = "%s%s%s" %(self.loanData['addrState'][i],
-    	# 						(self.loanData['issue_year'][i]-1),
-    	# 						self.loanData['issue_month'][i])
+    	key_12mths = "%s%s%s" %(self.loanData['addrState'][i],
+    							(self.loanData['issue_year'][i]-1),
+    							self.loanData['issue_month'][i])
     	if self.loanData['issue_month'][i] <= 6:
     		key_6mths = "%s%s%s" %(self.loanData['addrState'][i],
     								(self.loanData['issue_year'][i]-1),
@@ -298,18 +298,18 @@ class Predictor():
     		key_6mths = "%s%s%s" %(self.loanData['addr_state'][i],
     								(self.loanData['issue_year'][i]),
     								self.loanData['issue_month'][i]-6)
-    	# if self.loanData['issue_month'][i] <= 3:
-    	# 	key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
-    	# 							(self.loanData['issue_year'][i]-1),
-    	# 							self.loanData['issue_month'][i]+3)
-    	# else:
-    	# 	key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
-    	# 							(self.loanData['issue_year'][i]),
-    	# 							self.loanData['issue_month'][i]-3)
+    	if self.loanData['issue_month'][i] <= 3:
+    		key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
+    								(self.loanData['issue_year'][i]-1),
+    								self.loanData['issue_month'][i]+3)
+    	else:
+    		key_3mths = "%s%s%s" %(self.loanData['addrState'][i],
+    								(self.loanData['issue_year'][i]),
+    								self.loanData['issue_month'][i]-3)
     	try:
-    		# self.loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
+    		self.loanData['unemp_rate_12mths'].iloc[i] = unemp_rate_dict[key_12mths]
     		self.loanData['unemp_rate_6mths'].iloc[i] = unemp_rate_dict[key_6mths]
-    		# self.loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
+    		self.loanData['unemp_rate_3mths'].iloc[i] = unemp_rate_dict[key_3mths]
     	except KeyError:
     		print KeyError, "loan ", i
     		#self.loanData = self.loanData.drop(self.loanData.index[i])
@@ -465,7 +465,7 @@ class Predictor():
       #temporary variables to hold predictions for each new loan
       preds_clf = []
       preds_regr = []
-      for i in range(0, 2):
+      for i in range(0, 10):
         preds_clf.append(self.clfs[i].predict_proba(loan))
         preds_regr.append(self.regrs[i].predict(loan))
       #break up positive and negative probabilities for clf:

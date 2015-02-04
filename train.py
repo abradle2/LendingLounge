@@ -260,7 +260,7 @@ precision_0_vals = []
 precision_1_vals = []
 precision_2_vals = []
 accuracy_vals = []
-for iteration in range(2):
+for iteration in range(10):
 	
 	#Run regression
 	trainer = Trainer()
