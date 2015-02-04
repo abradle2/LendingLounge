@@ -261,7 +261,7 @@ precision_1_vals = []
 precision_2_vals = []
 accuracy_vals = []
 for iteration in range(2):
-	'''
+	
 	#Run regression
 	trainer = Trainer()
 	trainer.drop_columns()
@@ -286,7 +286,7 @@ for iteration in range(2):
 	#print trainer.regr.oob_score_
 	fileName = './pickles/rfr_%s.pickle' %iteration
 	trainer.pickle_algo(fileName=fileName, X=trainer.regr)
-	'''
+	
 	
 	#Run Clasification
 	print "Iteration ", iteration
@@ -333,8 +333,8 @@ for iteration in range(2):
 	#print "oob score"
 	#print trainer.clf.oob_score_
 	fileName = './pickles/rfc_%s.pickle' %iteration
-	#trainer.pickle_algo(fileName=fileName, X=trainer.clf)
-	trainer.roc()
+	trainer.pickle_algo(fileName=fileName, X=trainer.clf)
+	#trainer.roc()
 
 precision_0_mean_dummy = np.mean(precision_0_vals_dummy)
 precision_0_std_dummy = np.std(precision_0_vals_dummy)
