@@ -1,7 +1,0 @@
-Loading data.pickle
-Instances in training:  15055
-Instances in testing:  3590
-Total loans before balancing:  15055
-Defaults before balancing:  1115
-100
-200
