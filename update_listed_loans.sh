@@ -1,4 +1,4 @@
 python /home/ubuntu/LendingLounge/get_listed_loans.py
 python /home/ubuntu/LendingLounge/predict_listed_loans.py
-supervisorctl restart LendingClubWebApp
+supervisorctl restart LendingLoungeWebApp
 supervisorctl restart LendingLoungeWebApp_staging
